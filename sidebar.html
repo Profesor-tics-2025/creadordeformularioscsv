@@ -2,21 +2,31 @@
 <html>
   <head>
     <base target="_top">
-    <!-- Importar fuente moderna -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
       :root {
         --primary: #1a73e8;
         --primary-hover: #1557b0;
-        --bg-color: #f8f9fa;
+        --primary-light: rgba(26, 115, 232, 0.08);
+        --bg-color: #f0f4f9;
         --card-bg: #ffffff;
         --text-color: #202124;
         --text-muted: #5f6368;
         --border-color: #dadce0;
+        --success-color: #137333;
         --success-bg: #e6f4ea;
+        --success-border: #a8d5b5;
+        --error-color: #c5221f;
         --error-bg: #fce8e6;
-        --radius: 8px;
+        --error-border: #fad2cf;
+        --warn-color: #b06000;
+        --warn-bg: #fef7e0;
+        --radius: 10px;
+        --radius-sm: 6px;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
       }
+
+      * { box-sizing: border-box; }
 
       body {
         font-family: 'Inter', Roboto, sans-serif;
@@ -27,54 +37,76 @@
         display: flex;
         flex-direction: column;
         height: 100vh;
+        font-size: 13px;
       }
 
-      /* Cabecera / Header */
+      /* ── Header ── */
       .header {
-        background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+        background: linear-gradient(135deg, #1557b0 0%, #1a73e8 60%, #4a90d9 100%);
         color: white;
-        padding: 20px 16px 16px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 16px 16px 14px;
+        box-shadow: 0 2px 8px rgba(21,87,176,0.3);
+        flex-shrink: 0;
+      }
+
+      .header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
       }
 
       .header h2 {
-        font-size: 18px;
+        font-size: 17px;
         margin: 0;
         display: flex;
         align-items: center;
         gap: 8px;
+        font-weight: 700;
+        letter-spacing: -0.2px;
+      }
+
+      .version-badge {
+        font-size: 10px;
         font-weight: 600;
+        background: rgba(255,255,255,0.2);
+        border: 1px solid rgba(255,255,255,0.35);
+        border-radius: 20px;
+        padding: 2px 8px;
+        letter-spacing: 0.3px;
       }
 
       .header p {
-        font-size: 12px;
-        margin: 4px 0 0 28px;
-        opacity: 0.9;
+        font-size: 11.5px;
+        margin: 5px 0 0;
+        opacity: 0.85;
+        font-weight: 400;
       }
 
-      /* Sistema de Pestañas (Tabs) */
+      /* ── Tabs ── */
       .tabs {
         display: flex;
         background: var(--card-bg);
-        border-bottom: 1px solid var(--border-color);
-        padding: 0 8px;
+        border-bottom: 2px solid var(--border-color);
+        flex-shrink: 0;
       }
 
       .tab {
         flex: 1;
         text-align: center;
-        padding: 12px 0;
-        font-size: 13px;
+        padding: 11px 0 10px;
+        font-size: 12px;
         font-weight: 600;
         color: var(--text-muted);
         cursor: pointer;
         border-bottom: 3px solid transparent;
-        transition: all 0.2s ease;
+        margin-bottom: -2px;
+        transition: color 0.2s, border-color 0.2s, background 0.2s;
+        user-select: none;
       }
 
       .tab:hover {
         color: var(--primary);
-        background: rgba(26, 115, 232, 0.04);
+        background: var(--primary-light);
       }
 
       .tab.active {
@@ -82,124 +114,124 @@
         border-bottom-color: var(--primary);
       }
 
-      /* Contenido principal */
+      /* ── Main content ── */
       .main-content {
         flex: 1;
         overflow-y: auto;
-        padding: 16px;
+        padding: 14px 14px 8px;
+        scroll-behavior: smooth;
       }
 
-      .tab-content {
-        display: none;
-        animation: fadeIn 0.3s ease;
-      }
-
-      .tab-content.active {
-        display: block;
-      }
+      .tab-content { display: none; animation: fadeIn 0.25s ease; }
+      .tab-content.active { display: block; }
 
       @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(5px); }
-        to { opacity: 1; transform: translateY(0); }
+        from { opacity: 0; transform: translateY(4px); }
+        to   { opacity: 1; transform: translateY(0); }
       }
 
-      /* Formularios y Tarjetas */
+      /* ── Cards ── */
       .card {
         background: var(--card-bg);
         border: 1px solid var(--border-color);
         border-radius: var(--radius);
-        padding: 16px;
-        margin-bottom: 16px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        padding: 14px;
+        margin-bottom: 12px;
+        box-shadow: var(--shadow-sm);
       }
 
-      .form-group { margin-bottom: 16px; }
+      .card-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: var(--text-muted);
+        margin: 0 0 12px;
+      }
+
+      /* ── Form controls ── */
+      .form-group { margin-bottom: 14px; }
       .form-group:last-child { margin-bottom: 0; }
-      
-      label.block-label { 
-        display: block; 
-        font-size: 13px; 
-        font-weight: 600; 
-        margin-bottom: 6px; 
+
+      label.block-label {
+        display: block;
+        font-size: 12.5px;
+        font-weight: 600;
+        margin-bottom: 5px;
         color: #3c4043;
       }
 
-      input[type="text"], input[type="number"], textarea, select {
-        width: 100%; 
-        padding: 10px; 
-        border: 1px solid var(--border-color); 
-        border-radius: 6px; 
-        box-sizing: border-box; 
-        font-size: 13px; 
+      input[type="text"],
+      input[type="number"],
+      textarea,
+      select {
+        width: 100%;
+        padding: 9px 11px;
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        font-size: 13px;
         font-family: inherit;
-        transition: border-color 0.2s, box-shadow 0.2s;
+        color: var(--text-color);
         background-color: #f8f9fa;
+        transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
       }
 
-      input[type="text"]:focus, textarea:focus, select:focus {
+      input[type="text"]:focus,
+      input[type="number"]:focus,
+      textarea:focus,
+      select:focus {
         outline: none;
         border-color: var(--primary);
         background-color: #fff;
-        box-shadow: 0 0 0 2px rgba(26,115,232,0.2);
+        box-shadow: 0 0 0 3px rgba(26,115,232,0.15);
       }
 
-      textarea { resize: vertical; min-height: 70px; }
+      textarea { resize: vertical; min-height: 68px; line-height: 1.5; }
 
-      /* Color Picker Moderno */
-      .color-picker-container {
-        display: flex;
-        align-items: center;
-        gap: 12px;
+      .field-hint {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-top: 4px;
+        line-height: 1.4;
       }
-      
-      input[type="color"] {
-        -webkit-appearance: none;
-        border: none;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        cursor: pointer;
-        padding: 0;
-        background: none;
-      }
-      
-      input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-      input[type="color"]::-webkit-color-swatch { border: 2px solid var(--border-color); border-radius: 50%; }
 
-      /* Interruptores Modernos (Toggles iOS/Material Style) */
+      /* ── Toggles ── */
       .toggle-container {
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
         gap: 12px;
-        padding: 8px 0;
+        padding: 10px 0;
+        border-bottom: 1px solid #f1f3f4;
       }
 
-      .toggle-text {
-        flex: 1;
-      }
+      .toggle-container:last-child { border-bottom: none; padding-bottom: 0; }
+      .toggle-container:first-child { padding-top: 0; }
+
+      .toggle-text { flex: 1; }
 
       .toggle-text strong {
         display: block;
         font-size: 13px;
-        color: #202124;
+        color: var(--text-color);
         margin-bottom: 2px;
+        font-weight: 600;
       }
 
       .toggle-text span {
         display: block;
         font-size: 11px;
         color: var(--text-muted);
-        line-height: 1.3;
+        line-height: 1.4;
       }
 
       .switch {
         position: relative;
         display: inline-block;
-        width: 36px;
-        height: 20px;
+        width: 38px;
+        height: 22px;
         flex-shrink: 0;
-        margin-top: 2px;
+        margin-top: 1px;
       }
 
       .switch input { opacity: 0; width: 0; height: 0; }
@@ -207,130 +239,314 @@
       .slider {
         position: absolute;
         cursor: pointer;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background-color: #ccc;
-        transition: .3s;
-        border-radius: 20px;
+        inset: 0;
+        background-color: #bdc1c6;
+        transition: .25s;
+        border-radius: 22px;
       }
 
       .slider:before {
         position: absolute;
         content: "";
-        height: 16px;
-        width: 16px;
+        height: 18px;
+        width: 18px;
         left: 2px;
         bottom: 2px;
         background-color: white;
-        transition: .3s;
+        transition: .25s;
         border-radius: 50%;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.25);
       }
 
       input:checked + .slider { background-color: var(--primary); }
       input:checked + .slider:before { transform: translateX(16px); }
 
-      /* Pie de página (Footer flotante) */
-      .footer {
-        padding: 16px;
-        background: var(--card-bg);
-        border-top: 1px solid var(--border-color);
-        box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+      /* ── Format guide ── */
+      .guide-toggle {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--primary);
+        cursor: pointer;
+        padding: 4px 0;
+        user-select: none;
       }
 
-      button {
-        background-color: var(--primary); 
-        color: white; 
-        border: none; 
-        border-radius: 6px; 
-        padding: 12px; 
-        width: 100%; 
-        font-size: 14px; 
-        font-weight: 600; 
-        cursor: pointer; 
+      .guide-toggle .arrow {
+        transition: transform 0.2s;
+        font-size: 10px;
+      }
+
+      .guide-toggle.open .arrow { transform: rotate(90deg); }
+
+      .guide-body {
+        display: none;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px dashed var(--border-color);
+        font-size: 11.5px;
+        color: #444;
+        line-height: 1.5;
+      }
+
+      .guide-body.open { display: block; }
+
+      .col-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+      .col-table th, .col-table td {
+        text-align: left;
+        padding: 4px 6px;
+        font-size: 11px;
+        border-bottom: 1px solid #f1f3f4;
+      }
+      .col-table th { font-weight: 700; color: var(--text-muted); background: #f8f9fa; }
+      .col-table td:first-child { font-weight: 600; color: var(--primary); }
+      .required-star { color: #c5221f; font-weight: 700; }
+
+      /* ── Footer ── */
+      .footer {
+        padding: 12px 14px;
+        background: var(--card-bg);
+        border-top: 1px solid var(--border-color);
+        box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+        flex-shrink: 0;
+      }
+
+      button.btn-primary {
+        background: linear-gradient(135deg, #1a73e8, #1557b0);
+        color: white;
+        border: none;
+        border-radius: var(--radius-sm);
+        padding: 12px;
+        width: 100%;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
         display: flex;
         justify-content: center;
         align-items: center;
         gap: 8px;
         transition: all 0.2s;
+        letter-spacing: 0.1px;
+        box-shadow: 0 2px 6px rgba(26,115,232,0.25);
       }
 
-      button:hover { 
-        background-color: var(--primary-hover); 
-        box-shadow: 0 2px 6px rgba(26,115,232,0.3);
+      button.btn-primary:hover {
+        background: linear-gradient(135deg, #1557b0, #0d47a1);
+        box-shadow: 0 4px 12px rgba(26,115,232,0.35);
+        transform: translateY(-1px);
       }
 
-      button:disabled {
-        background-color: #ccc;
+      button.btn-primary:active { transform: translateY(0); box-shadow: none; }
+
+      button.btn-primary:disabled {
+        background: #bdc1c6;
         cursor: not-allowed;
         box-shadow: none;
+        transform: none;
       }
 
-      /* Estados de Carga y Resultados */
-      #loader, #resultado { display: none; text-align: center; padding: 20px; }
-      
-      .spinner { 
-        border: 3px solid rgba(26,115,232,0.1); 
-        border-left-color: var(--primary); 
-        border-radius: 50%; 
-        width: 32px; 
-        height: 32px; 
-        animation: spin 1s linear infinite; 
-        margin: 0 auto; 
+      button.btn-secondary {
+        background: transparent;
+        color: var(--primary);
+        border: 1.5px solid var(--primary);
+        border-radius: var(--radius-sm);
+        padding: 9px 12px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 10px;
+        transition: all 0.2s;
       }
 
-      .resultado { padding: 16px; border-radius: var(--radius); font-size: 13px; text-align: left;}
-      .success { background-color: var(--success-bg); border: 1px solid #cce8d6; }
-      .error { background-color: var(--error-bg); border: 1px solid #fad2cf; }
-      
-      .link-btn { 
-        display: flex; justify-content: center; align-items: center; gap: 6px;
-        margin-top: 10px; padding: 10px; border-radius: 6px; 
-        text-decoration: none; font-weight: 600; font-size: 13px;
-        transition: background-color 0.2s;
-      }
-      .link-edit { background-color: white; border: 1px solid var(--border-color); color: var(--text-color);}
-      .link-edit:hover { background-color: #f1f3f4; }
-      .link-view { background-color: var(--primary); color: white; }
-      .link-view:hover { background-color: var(--primary-hover); }
+      button.btn-secondary:hover { background: var(--primary-light); }
 
+      /* ── Loader ── */
+      #loader {
+        display: none;
+        text-align: center;
+        padding: 32px 20px;
+      }
+
+      .spinner-wrap { position: relative; width: 52px; height: 52px; margin: 0 auto 20px; }
+
+      .spinner-ring {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 3px solid transparent;
+        animation: spin 1.1s linear infinite;
+      }
+
+      .spinner-ring:nth-child(1) { border-top-color: var(--primary); }
+      .spinner-ring:nth-child(2) { border-right-color: rgba(26,115,232,0.3); animation-duration: 1.6s; animation-direction: reverse; }
+
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      .loader-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--primary);
+        margin: 0 0 6px;
+      }
+
+      .loader-sub {
+        font-size: 12px;
+        color: var(--text-muted);
+        line-height: 1.5;
+        margin: 0 0 16px;
+      }
+
+      .loader-steps { list-style: none; padding: 0; margin: 0; text-align: left; display: inline-block; }
+
+      .loader-steps li {
+        font-size: 12px;
+        color: var(--text-muted);
+        padding: 3px 0;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+      }
+
+      .step-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #dadce0;
+        flex-shrink: 0;
+        transition: background 0.4s;
+      }
+
+      .step-dot.active { background: var(--primary); animation: pulse 1s ease-in-out infinite; }
+      .step-dot.done   { background: #34a853; }
+
+      @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50%       { transform: scale(1.35); opacity: 0.7; }
+      }
+
+      /* ── Result ── */
+      #resultado { display: none; padding: 4px 0; }
+
+      .result-card {
+        border-radius: var(--radius);
+        padding: 18px;
+        font-size: 13px;
+      }
+
+      .result-card.success {
+        background: var(--success-bg);
+        border: 1px solid var(--success-border);
+      }
+
+      .result-card.error {
+        background: var(--error-bg);
+        border: 1px solid var(--error-border);
+      }
+
+      .result-icon { font-size: 32px; text-align: center; margin-bottom: 8px; }
+
+      .result-title {
+        text-align: center;
+        font-size: 15px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+
+      .result-title.success { color: var(--success-color); }
+      .result-title.error   { color: var(--error-color); }
+
+      .result-sub {
+        text-align: center;
+        margin: 0 0 14px;
+        color: #444;
+        line-height: 1.5;
+      }
+
+      .link-btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 7px;
+        padding: 10px;
+        border-radius: var(--radius-sm);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 13px;
+        margin-top: 8px;
+        transition: all 0.2s;
+      }
+
+      .link-edit {
+        background: white;
+        border: 1.5px solid var(--border-color);
+        color: var(--text-color);
+      }
+
+      .link-edit:hover { background: #f1f3f4; }
+
+      .link-view {
+        background: linear-gradient(135deg, #1a73e8, #1557b0);
+        color: white;
+        box-shadow: 0 2px 6px rgba(26,115,232,0.25);
+      }
+
+      .link-view:hover { box-shadow: 0 4px 10px rgba(26,115,232,0.35); }
+
+      /* ── Misc ── */
+      .divider { height: 1px; background: var(--border-color); margin: 12px 0; }
     </style>
   </head>
   <body>
 
+    <!-- Header -->
     <div class="header">
-      <h2>⚡ Creador Pro</h2>
-      <p>Generador inteligente de formularios</p>
+      <div class="header-row">
+        <h2>⚡ Creador Pro</h2>
+        <span class="version-badge">v2.1</span>
+      </div>
+      <p>Genera formularios de Google Forms desde tu hoja de cálculo</p>
     </div>
 
-    <!-- Pestañas de Navegación -->
+    <!-- Tabs -->
     <div class="tabs">
       <div class="tab active" onclick="openTab('tab-general', this)">📝 General</div>
       <div class="tab" onclick="openTab('tab-ajustes', this)">⚙️ Ajustes</div>
-      <div class="tab" onclick="openTab('tab-avanzado', this)">🎨 Extra</div>
+      <div class="tab" onclick="openTab('tab-extra', this)">🎯 Extra</div>
     </div>
 
     <div class="main-content">
       <form id="formularioConfig" onsubmit="procesarFormulario(event)">
-        
-        <!-- PESTAÑA 1: GENERAL -->
+
+        <!-- ── PESTAÑA 1: GENERAL ── -->
         <div id="tab-general" class="tab-content active">
+
           <div class="card">
+            <p class="card-title">Información del formulario</p>
+
             <div class="form-group">
-              <label class="block-label" for="nombreFormulario">Título del Documento</label>
-              <input type="text" id="nombreFormulario" name="nombreFormulario" placeholder="Ej. Examen de Historia - Tema 4" required>
+              <label class="block-label" for="nombreFormulario">Título del cuestionario <span class="required-star">*</span></label>
+              <input type="text" id="nombreFormulario" placeholder="Ej. Examen Tema 4 — Historia" required maxlength="200">
             </div>
 
             <div class="form-group">
-              <label class="block-label" for="mensajeAgradecimiento">Mensaje al Finalizar</label>
-              <textarea id="mensajeAgradecimiento" placeholder="Ej. ¡Enhorabuena! Las notas se publicarán mañana a primera hora."></textarea>
+              <label class="block-label" for="descripcionFormulario">Descripción / Instrucciones</label>
+              <textarea id="descripcionFormulario" placeholder="Ej. Lee cada pregunta con atención. Tienes 45 minutos."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="block-label" for="mensajeAgradecimiento">Mensaje al finalizar</label>
+              <textarea id="mensajeAgradecimiento" placeholder="Ej. ¡Enhorabuena! Las notas se publicarán mañana." style="min-height: 56px;"></textarea>
             </div>
           </div>
 
           <div class="card">
-             <div class="toggle-container">
+            <div class="toggle-container">
               <div class="toggle-text">
-                <strong>Datos del Alumno</strong>
-                <span>Pedir Nombre, Apellidos y Grupo obligatoriamente en la primera página.</span>
+                <strong>Datos del alumno</strong>
+                <span>Añade al inicio campos obligatorios de Nombre, Apellidos y Grupo.</span>
               </div>
               <label class="switch">
                 <input type="checkbox" id="pedirDatosAlumno" checked>
@@ -338,15 +554,47 @@
               </label>
             </div>
           </div>
+
+          <!-- Guía de formato colapsable -->
+          <div class="card">
+            <div class="guide-toggle" id="guideToggle" onclick="toggleGuide()">
+              <span class="arrow">▶</span>
+              <span>¿Cómo debe estar la hoja de cálculo?</span>
+            </div>
+            <div class="guide-body" id="guideBody">
+              <p>La primera fila debe contener los <strong>encabezados</strong>. El script los detecta de forma flexible:</p>
+              <table class="col-table">
+                <thead>
+                  <tr><th>Columna</th><th>Nombres aceptados</th><th></th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Pregunta</td><td>Pregunta, Titulo, Question</td><td><span class="required-star">*</span></td></tr>
+                  <tr><td>Tipo</td><td>Tipo, Type, Formato</td><td></td></tr>
+                  <tr><td>Opciones</td><td>Opción1, Opcion2, Opt3…</td><td></td></tr>
+                  <tr><td>Correcta</td><td>Correcta, Respuesta Correcta, Answer</td><td></td></tr>
+                  <tr><td>Puntos</td><td>Puntos, Puntuacion, Points, Score</td><td></td></tr>
+                  <tr><td>Feedback ✓</td><td>Feedback Correcto, Comentario Acierto</td><td></td></tr>
+                  <tr><td>Feedback ✗</td><td>Feedback Incorrecto, Comentario Fallo</td><td></td></tr>
+                </tbody>
+              </table>
+              <p style="margin: 8px 0 0; font-size: 11px; color: var(--text-muted);">
+                <strong>Tipos válidos:</strong> <code>test</code> (por defecto), <code>casillas</code> / <code>multiple</code>, <code>texto</code> / <code>abierta</code>.<br>
+                Para <em>casillas</em>, separa las respuestas correctas con comas.
+              </p>
+            </div>
+          </div>
+
         </div>
 
-        <!-- PESTAÑA 2: AJUSTES ESTRUCTURALES -->
+        <!-- ── PESTAÑA 2: AJUSTES ── -->
         <div id="tab-ajustes" class="tab-content">
           <div class="card">
-            <div class="toggle-container" style="border-bottom: 1px solid #eee; padding-bottom: 12px; margin-bottom: 12px;">
+            <p class="card-title">Estructura del cuestionario</p>
+
+            <div class="toggle-container">
               <div class="toggle-text">
                 <strong>Pregunta por página</strong>
-                <span>Añade saltos de sección. Ideal para evitar agobio visual en exámenes largos.</span>
+                <span>Inserta un salto de sección entre preguntas. Ideal para exámenes largos.</span>
               </div>
               <label class="switch">
                 <input type="checkbox" id="preguntaPorPagina">
@@ -354,10 +602,10 @@
               </label>
             </div>
 
-            <div class="toggle-container" style="border-bottom: 1px solid #eee; padding-bottom: 12px; margin-bottom: 12px;">
+            <div class="toggle-container">
               <div class="toggle-text">
-                <strong>Barajar Opciones</strong>
-                <span>El orden de las respuestas (A, B, C...) será diferente para cada alumno.</span>
+                <strong>Barajar opciones</strong>
+                <span>El orden de las respuestas (A, B, C…) varía en cada alumno.</span>
               </div>
               <label class="switch">
                 <input type="checkbox" id="barajarOpciones" checked>
@@ -367,8 +615,8 @@
 
             <div class="toggle-container">
               <div class="toggle-text">
-                <strong>Preguntas Obligatorias</strong>
-                <span>Fuerza a responder todas las cuestiones generadas.</span>
+                <strong>Preguntas obligatorias</strong>
+                <span>Obliga a responder todas las preguntas antes de enviar.</span>
               </div>
               <label class="switch">
                 <input type="checkbox" id="preguntasObligatorias" checked>
@@ -378,82 +626,135 @@
           </div>
         </div>
 
-        <!-- PESTAÑA 3: EXTRA Y ESTILOS -->
-        <div id="tab-avanzado" class="tab-content">
+        <!-- ── PESTAÑA 3: EXTRA ── -->
+        <div id="tab-extra" class="tab-content">
           <div class="card">
+            <p class="card-title">Puntuación</p>
             <div class="form-group">
-              <label class="block-label" for="puntosDefault">Puntuación por defecto</label>
-              <input type="number" id="puntosDefault" value="1" min="0" placeholder="Puntos si la celda está vacía">
-              <span style="font-size: 11px; color: #666; margin-top: 4px; display: block;">Se aplicará si dejas la columna 'Puntos' en blanco.</span>
+              <label class="block-label" for="puntosDefault">Puntos por defecto</label>
+              <input type="number" id="puntosDefault" value="1" min="0" max="100" step="0.5">
+              <p class="field-hint">Se aplica a las preguntas donde la columna «Puntos» esté vacía.</p>
             </div>
           </div>
 
           <div class="card">
-             <div class="form-group">
-              <label class="block-label" for="colorTema">Color Principal del Formulario</label>
-              <div class="color-picker-container">
-                <input type="color" id="colorTema" value="#673AB7">
-                <span style="font-size: 13px; color: #5f6368;">Selecciona un tema visual</span>
+            <p class="card-title">Barra de progreso</p>
+            <div class="toggle-container">
+              <div class="toggle-text">
+                <strong>Mostrar progreso</strong>
+                <span>Muestra al alumno en qué porcentaje del formulario se encuentra.</span>
               </div>
+              <label class="switch">
+                <input type="checkbox" id="barraProgreso" checked>
+                <span class="slider"></span>
+              </label>
             </div>
+          </div>
+
+          <div class="card" style="background: var(--warn-bg); border-color: #f9d581;">
+            <p class="card-title" style="color: var(--warn-color);">ℹ️ Sobre estilos visuales</p>
+            <p style="font-size: 12px; color: #5a4000; margin: 0; line-height: 1.5;">
+              La API de Google Forms <strong>no permite cambiar el color o tema</strong> del formulario de forma programática. Puedes personalizarlo manualmente desde el editor de Forms una vez generado.
+            </p>
           </div>
         </div>
 
       </form>
 
-      <!-- Zonas de Estado -->
+      <!-- Estado: Cargando -->
       <div id="loader">
-        <div class="spinner"></div>
-        <h3 style="margin: 16px 0 8px; font-size: 15px; color: var(--primary);">Construyendo...</h3>
-        <p style="font-size: 12px; color: #666; margin: 0; line-height: 1.5;">Leyendo hoja de cálculo, procesando validaciones y aplicando configuraciones.</p>
+        <div class="spinner-wrap">
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring"></div>
+        </div>
+        <p class="loader-title">Generando cuestionario…</p>
+        <p class="loader-sub">Esto puede tardar unos segundos dependiendo del número de preguntas.</p>
+        <ul class="loader-steps" id="loaderSteps">
+          <li><span class="step-dot" id="step1"></span>Leyendo hoja de cálculo</li>
+          <li><span class="step-dot" id="step2"></span>Validando datos</li>
+          <li><span class="step-dot" id="step3"></span>Creando formulario en Drive</li>
+          <li><span class="step-dot" id="step4"></span>Añadiendo preguntas</li>
+          <li><span class="step-dot" id="step5"></span>Guardando registro</li>
+        </ul>
       </div>
 
-      <div id="resultado" class="resultado"></div>
+      <!-- Estado: Resultado -->
+      <div id="resultado"></div>
     </div>
 
-    <!-- Footer fijo con el botón de envío -->
+    <!-- Footer -->
     <div class="footer" id="footer-controls">
-      <button type="button" id="btnGenerar" onclick="document.getElementById('formularioConfig').requestSubmit()">
-        🚀 Generar Formulario
+      <button type="button" class="btn-primary" id="btnGenerar" onclick="document.getElementById('formularioConfig').requestSubmit()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        Generar formulario
       </button>
     </div>
 
     <script>
-      // Lógica de Pestañas
+      // ── Lógica de pestañas ──
       function openTab(tabName, element) {
-        // Ocultar todas las pestañas
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-        
-        // Mostrar la seleccionada
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.getElementById(tabName).classList.add('active');
         element.classList.add('active');
       }
 
-      // Lógica principal de ejecución
+      // ── Guía de formato colapsable ──
+      function toggleGuide() {
+        const toggle = document.getElementById('guideToggle');
+        const body   = document.getElementById('guideBody');
+        const isOpen = toggle.classList.toggle('open');
+        body.classList.toggle('open', isOpen);
+      }
+
+      // ── Animación de pasos del loader ──
+      let stepTimer = null;
+      const STEP_DELAYS = [600, 1400, 2400, 3600, 5000];
+
+      function iniciarAnimacionPasos() {
+        let stepIndex = 0;
+        const dots = document.querySelectorAll('.step-dot');
+        dots.forEach(d => { d.className = 'step-dot'; });
+
+        function avanzarPaso() {
+          if (stepIndex > 0) dots[stepIndex - 1].classList.replace('active', 'done');
+          if (stepIndex < dots.length) {
+            dots[stepIndex].classList.add('active');
+            stepIndex++;
+            stepTimer = setTimeout(avanzarPaso, STEP_DELAYS[stepIndex - 1] || 1500);
+          }
+        }
+        avanzarPaso();
+      }
+
+      function detenerAnimacionPasos() {
+        clearTimeout(stepTimer);
+        document.querySelectorAll('.step-dot').forEach(d => d.className = 'step-dot');
+      }
+
+      // ── Lógica principal ──
       function procesarFormulario(evento) {
         evento.preventDefault();
-        
-        // Cambios en la UI durante la carga
+
         document.getElementById('footer-controls').style.display = 'none';
         document.getElementById('formularioConfig').style.display = 'none';
         document.querySelector('.tabs').style.display = 'none';
+        document.getElementById('resultado').style.display = 'none';
         document.getElementById('loader').style.display = 'block';
+        iniciarAnimacionPasos();
 
-        // Recopilación de todos los datos nuevos
         const configuracion = {
-          nombreFormulario: document.getElementById('nombreFormulario').value,
-          mensajeAgradecimiento: document.getElementById('mensajeAgradecimiento').value,
-          preguntaPorPagina: document.getElementById('preguntaPorPagina').checked,
-          barajarOpciones: document.getElementById('barajarOpciones').checked,
+          nombreFormulario:      document.getElementById('nombreFormulario').value.trim(),
+          descripcionFormulario: document.getElementById('descripcionFormulario').value.trim(),
+          mensajeAgradecimiento: document.getElementById('mensajeAgradecimiento').value.trim(),
+          pedirDatosAlumno:      document.getElementById('pedirDatosAlumno').checked,
+          preguntaPorPagina:     document.getElementById('preguntaPorPagina').checked,
+          barajarOpciones:       document.getElementById('barajarOpciones').checked,
           preguntasObligatorias: document.getElementById('preguntasObligatorias').checked,
-          pedirDatosAlumno: document.getElementById('pedirDatosAlumno').checked,
-          puntosDefault: document.getElementById('puntosDefault').value,
-          colorTema: document.getElementById('colorTema').value,
-          barraProgreso: true 
+          puntosDefault:         parseFloat(document.getElementById('puntosDefault').value) || 1,
+          barraProgreso:         document.getElementById('barraProgreso').checked
         };
 
-        // Llamada al Backend (codigo.gs)
         google.script.run
           .withSuccessHandler(manejarExito)
           .withFailureHandler(manejarErrorCritico)
@@ -461,50 +762,54 @@
       }
 
       function manejarExito(respuesta) {
+        detenerAnimacionPasos();
         document.getElementById('loader').style.display = 'none';
-        const divResultado = document.getElementById('resultado');
-        divResultado.style.display = 'block';
+        const div = document.getElementById('resultado');
+        div.style.display = 'block';
 
         if (respuesta.success) {
-          divResultado.className = 'resultado success';
-          divResultado.innerHTML = `
-            <div style="text-align: center; margin-bottom: 12px; font-size: 24px;">🎉</div>
-            <strong style="display:block; text-align:center; font-size:15px; color:#0d652d; margin-bottom:4px;">¡Generación Exitosa!</strong>
-            <p style="text-align:center; color:#137333; margin-top:0;">Se han procesado e insertado <b>${respuesta.count}</b> preguntas.</p>
-            
-            <a href="${respuesta.editUrl}" target="_blank" class="link-btn link-edit">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-              Editar Cuestionario
-            </a>
-            
-            <a href="${respuesta.publishedUrl}" target="_blank" class="link-btn link-view">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-              Vista de Alumno
-            </a>
-            
-            <button onclick="reiniciarApp()" style="margin-top: 20px; background: transparent; color: var(--primary); border: 1px solid var(--primary); padding: 8px;">
-              Crear otro cuestionario
-            </button>
-          `;
+          div.innerHTML = `
+            <div class="result-card success">
+              <div class="result-icon">🎉</div>
+              <p class="result-title success">¡Formulario generado!</p>
+              <p class="result-sub">Se han insertado <strong>${respuesta.count}</strong> pregunta${respuesta.count !== 1 ? 's' : ''} correctamente.</p>
+
+              <a href="${respuesta.editUrl}" target="_blank" class="link-btn link-edit">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                Editar cuestionario
+              </a>
+
+              <a href="${respuesta.publishedUrl}" target="_blank" class="link-btn link-view">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                Vista del alumno
+              </a>
+
+              <button class="btn-secondary" onclick="reiniciarApp()">+ Crear otro cuestionario</button>
+            </div>`;
         } else {
-          divResultado.className = 'resultado error';
-          divResultado.innerHTML = `
-            <strong style="color: #c5221f;">⚠️ Formato Incorrecto</strong><br>
-            <p style="margin: 8px 0;">${respuesta.error}</p>
-            <button onclick="reiniciarApp()" style="padding: 8px;">Volver y corregir</button>
-          `;
+          div.innerHTML = `
+            <div class="result-card error">
+              <div class="result-icon">⚠️</div>
+              <p class="result-title error">Formato incorrecto</p>
+              <p class="result-sub">${respuesta.error}</p>
+              <p style="font-size:11px; color:var(--text-muted); margin:0 0 12px;">Consulta la pestaña «Logs Formularios» en la hoja para más detalles.</p>
+              <button class="btn-secondary" onclick="reiniciarApp()">Volver y corregir</button>
+            </div>`;
         }
       }
 
       function manejarErrorCritico(error) {
+        detenerAnimacionPasos();
         document.getElementById('loader').style.display = 'none';
-        const divResultado = document.getElementById('resultado');
-        divResultado.style.display = 'block';
-        divResultado.className = 'resultado error';
-        divResultado.innerHTML = `
-          <strong style="color: #c5221f;">🚨 Fallo de Conexión</strong><br>
-          <p style="margin: 8px 0;">${error.message}</p>
-          <button onclick="reiniciarApp()" style="padding: 8px;">Reintentar</button>`;
+        const div = document.getElementById('resultado');
+        div.style.display = 'block';
+        div.innerHTML = `
+          <div class="result-card error">
+            <div class="result-icon">🚨</div>
+            <p class="result-title error">Fallo de conexión</p>
+            <p class="result-sub">${error.message}</p>
+            <button class="btn-secondary" onclick="reiniciarApp()">Reintentar</button>
+          </div>`;
       }
 
       function reiniciarApp() {
@@ -512,9 +817,8 @@
         document.getElementById('formularioConfig').style.display = 'block';
         document.querySelector('.tabs').style.display = 'flex';
         document.getElementById('resultado').style.display = 'none';
-        
-        // Resetear a la primera pestaña
         document.querySelectorAll('.tab')[0].click();
+        document.getElementById('nombreFormulario').focus();
       }
     </script>
   </body>

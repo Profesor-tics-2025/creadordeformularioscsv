@@ -2,7 +2,7 @@
  * @fileoverview Sistema Profesional de Generación de Formularios (Google Forms)
  * Implementa un patrón orientado a objetos con mapeo dinámico de datos,
  * soporte multi-pregunta, inyección de feedback y registro de auditoría (logs).
- * * @version 2.0.0
+ * @version 2.1.0
  */
 
 // ============================================================================
@@ -38,26 +38,22 @@ function abrirSidebar() {
 
 /**
  * Punto de entrada principal invocado desde el HTML Sidebar.
- * * @param {Object} configuracion - Objeto con los parámetros del usuario.
- * @param {string} configuracion.nombreFormulario - Título del cuestionario.
- * @param {boolean} configuracion.recopilarEmails - Si se deben pedir emails.
- * @param {boolean} configuracion.barraProgreso - Si se muestra barra de progreso.
- * @returns {Object} Respuesta estándar de la API con estado y URLs.
+ * @param {Object} configuracion - Objeto con los parámetros del usuario.
+ * @param {string}  configuracion.nombreFormulario       - Título del cuestionario.
+ * @param {string}  configuracion.descripcionFormulario  - Descripción/instrucciones.
+ * @param {string}  configuracion.mensajeAgradecimiento  - Mensaje de confirmación tras enviar.
+ * @param {boolean} configuracion.pedirDatosAlumno       - Añadir campos Nombre/Apellidos/Grupo.
+ * @param {boolean} configuracion.preguntaPorPagina      - Un salto de sección entre preguntas.
+ * @param {boolean} configuracion.barajarOpciones        - Mezclar respuestas dentro de cada pregunta.
+ * @param {boolean} configuracion.preguntasObligatorias  - Forzar respuesta en todas las preguntas.
+ * @param {number}  configuracion.puntosDefault          - Puntos usados si la columna está vacía.
+ * @param {boolean} configuracion.barraProgreso          - Mostrar barra de progreso en el formulario.
+ * @returns {Object} Respuesta estándar con estado, URLs y log.
  */
 function generarFormularioDesdeHoja(configuracion) {
   try {
-    const configName = typeof configuracion === 'string' ? configuracion : configuracion.nombreFormulario;
-    const configAvanzada = typeof configuracion === 'object' ? configuracion : { 
-      nombreFormulario: configName,
-      recopilarEmails: true,
-      barraProgreso: true 
-    };
-
-    // Instanciar el motor de construcción
-    const builder = new FormBuilder(configAvanzada);
-    const resultado = builder.ejecutar();
-
-    return resultado;
+    const builder = new FormBuilder(configuracion);
+    return builder.ejecutar();
   } catch (error) {
     console.error("Error crítico en la ejecución:", error);
     return {
@@ -141,16 +137,15 @@ class FormBuilder {
    */
   _mapearEncabezados() {
     this.headers = this.data[0].map(h => String(h).trim().toLowerCase());
-    
-    // Mapeo flexible de nombres de columnas
+
     this.indices = {
-      pregunta: this._encontrarIndice(['pregunta', 'titulo', 'question']),
-      tipo: this._encontrarIndice(['tipo', 'type', 'formato']),
-      opciones: this._encontrarColumnasOpciones(),
-      correcta: this._encontrarIndice(['respuesta correcta', 'correcta', 'answer']),
-      puntos: this._encontrarIndice(['puntos', 'puntuacion', 'points', 'score']),
-      feedbackCorrecto: this._encontrarIndice(['feedback correcto', 'comentario acierto']),
-      feedbackIncorrecto: this._encontrarIndice(['feedback incorrecto', 'comentario fallo'])
+      pregunta:          this._encontrarIndice(['pregunta', 'titulo', 'question']),
+      tipo:              this._encontrarIndice(['tipo', 'type', 'formato']),
+      opciones:          this._encontrarColumnasOpciones(),
+      correcta:          this._encontrarIndice(['respuesta correcta', 'correcta', 'answer']),
+      puntos:            this._encontrarIndice(['puntos', 'puntuacion', 'points', 'score']),
+      feedbackCorrecto:  this._encontrarIndice(['feedback correcto', 'comentario acierto']),
+      feedbackIncorrecto:this._encontrarIndice(['feedback incorrecto', 'comentario fallo'])
     };
 
     if (this.indices.pregunta === -1) {
@@ -163,26 +158,51 @@ class FormBuilder {
    * @private
    */
   _inicializarFormulario() {
-    const titulo = this.config.nombreFormulario 
-      ? this.config.nombreFormulario.trim() 
-      : "Cuestionario Generado Automáticamente";
-      
+    const titulo = (this.config.nombreFormulario || '').trim() || "Cuestionario Generado Automáticamente";
     this.form = FormApp.create(titulo);
-    
-    // Configuración avanzada de Quiz
+
+    // Descripción / instrucciones
+    const descripcion = (this.config.descripcionFormulario || '').trim();
+    if (descripcion) {
+      this.form.setDescription(descripcion);
+    }
+
+    // Configuración de Quiz
     this.form.setIsQuiz(true);
-    this.form.setShuffleQuestions(true); // Evitar trampas
-    this.form.setAllowResponseEdits(false); // No cambiar respuestas después de enviar
-    this.form.setLimitOneResponsePerUser(false); // Ajustar según necesidad
-    
-    // Configuraciones cosméticas
+    this.form.setAllowResponseEdits(false);
+    this.form.setLimitOneResponsePerUser(false);
+
+    // Barajar el orden de las PREGUNTAS en el formulario (anti-copia)
+    // La mezcla de las OPCIONES de cada pregunta se gestiona por item.
+    this.form.setShuffleQuestions(this.config.barajarOpciones !== false);
+
+    // Barra de progreso
     if (this.config.barraProgreso) {
       this.form.setProgressBar(true);
     }
-    
-    this.form.setConfirmationMessage("¡Gracias por completar el cuestionario! Tus respuestas han sido registradas correctamente.");
-    
-    this._registrarLog(`INFO`, `Formulario '${titulo}' inicializado correctamente.`);
+
+    // Mensaje de confirmación personalizado
+    const msgConfirmacion = (this.config.mensajeAgradecimiento || '').trim() ||
+      "¡Gracias por completar el cuestionario! Tus respuestas han sido registradas correctamente.";
+    this.form.setConfirmationMessage(msgConfirmacion);
+
+    // Campos de datos del alumno (primera página)
+    if (this.config.pedirDatosAlumno) {
+      this._agregarCamposAlumno();
+    }
+
+    this._registrarLog('INFO', `Formulario '${titulo}' inicializado correctamente.`);
+  }
+
+  /**
+   * Añade campos de texto para Nombre, Apellidos y Grupo al inicio del formulario.
+   * @private
+   */
+  _agregarCamposAlumno() {
+    this.form.addTextItem().setTitle('Nombre').setRequired(true);
+    this.form.addTextItem().setTitle('Apellidos').setRequired(true);
+    this.form.addTextItem().setTitle('Grupo / Clase').setRequired(true);
+    this._registrarLog('INFO', 'Campos de datos del alumno añadidos al inicio del formulario.');
   }
 
   /**
@@ -190,7 +210,6 @@ class FormBuilder {
    * @private
    */
   _procesarFilas() {
-    // Empezamos en 1 para omitir encabezados
     for (let i = 1; i < this.data.length; i++) {
       const row = this.data[i];
       const numeroFila = i + 1;
@@ -205,11 +224,19 @@ class FormBuilder {
           continue;
         }
 
+        // Salto de sección antes de cada pregunta cuando la opción está activada.
+        // No se añade antes de la primera pregunta si no hay campos de alumno
+        // para evitar una primera página vacía.
+        const esPrimeraEntrada = this.estadisticas.creadas === 0 && !this.config.pedirDatosAlumno;
+        if (this.config.preguntaPorPagina && !esPrimeraEntrada) {
+          this.form.addPageBreakItem();
+        }
+
         this._construirPregunta(dto, numeroFila);
         this.estadisticas.creadas++;
 
       } catch (err) {
-        this._registrarLog(`ERROR`, `Fila ${numeroFila}: Falla inesperada -> ${err.message}`);
+        this._registrarLog('ERROR', `Fila ${numeroFila}: Falla inesperada -> ${err.message}`);
         this.estadisticas.omitidas++;
       }
     }
@@ -220,20 +247,18 @@ class FormBuilder {
    * @private
    */
   _construirPregunta(dto, numeroFila) {
-    const tipoNormalizado = dto.tipo.toLowerCase();
+    const tipo = dto.tipo.toLowerCase();
 
-    if (tipoNormalizado === 'texto' || tipoNormalizado === 'abierta') {
+    if (tipo === 'texto' || tipo === 'abierta') {
       this._agregarPreguntaTexto(dto);
-    } 
-    else if (tipoNormalizado === 'casillas' || tipoNormalizado === 'multiple') {
+    } else if (tipo === 'casillas' || tipo === 'multiple') {
       this._agregarPreguntaCasillas(dto);
-    }
-    else {
-      // Default a Test (Opción múltiple de radio button)
+    } else {
+      // Default: opción múltiple (test)
       this._agregarPreguntaOpcionMultiple(dto);
     }
 
-    this._registrarLog(`ÉXITO`, `Fila ${numeroFila}: Pregunta "${dto.pregunta.substring(0,20)}..." añadida.`);
+    this._registrarLog('ÉXITO', `Fila ${numeroFila}: Pregunta "${dto.pregunta.substring(0, 30)}..." añadida.`);
   }
 
   /**
@@ -244,71 +269,52 @@ class FormBuilder {
     const item = this.form.addMultipleChoiceItem();
     item.setTitle(dto.pregunta);
     item.setPoints(dto.puntos);
-    item.setRequired(true);
+    item.setRequired(this.config.preguntasObligatorias !== false);
+    item.setShuffleAnswers(this.config.barajarOpciones !== false);
 
-    const choices = dto.opciones.map(opcion => {
-      return item.createChoice(opcion, opcion === dto.correcta);
-    });
-
+    const choices = dto.opciones.map(opcion => item.createChoice(opcion, opcion === dto.correcta));
     item.setChoices(choices);
     this._inyectarFeedback(item, dto);
   }
 
   /**
-   * Construye una pregunta de casillas de verificación (permite múltiples respuestas correctas separadas por coma).
+   * Construye una pregunta de casillas de verificación (múltiples respuestas correctas separadas por coma).
    * @private
    */
   _agregarPreguntaCasillas(dto) {
     const item = this.form.addCheckboxItem();
     item.setTitle(dto.pregunta);
     item.setPoints(dto.puntos);
-    item.setRequired(true);
+    item.setRequired(this.config.preguntasObligatorias !== false);
+    item.setShuffleAnswers(this.config.barajarOpciones !== false);
 
-    // Permitir que la respuesta correcta sean varias opciones separadas por coma
     const respuestasCorrectas = dto.correcta.split(',').map(r => r.trim());
-
-    const choices = dto.opciones.map(opcion => {
-      const esCorrecta = respuestasCorrectas.includes(opcion);
-      return item.createChoice(opcion, esCorrecta);
-    });
-
+    const choices = dto.opciones.map(opcion => item.createChoice(opcion, respuestasCorrectas.includes(opcion)));
     item.setChoices(choices);
     this._inyectarFeedback(item, dto);
   }
 
   /**
-   * Construye una pregunta de texto corto.
+   * Construye una pregunta de texto corto (requiere corrección manual del profesor).
    * @private
    */
   _agregarPreguntaTexto(dto) {
     const item = this.form.addTextItem();
     item.setTitle(dto.pregunta);
     item.setPoints(dto.puntos);
-    item.setRequired(true);
-
-    // Configurar validación si la respuesta debe ser exacta (sensible a mayúsculas)
-    // En Google Forms API, el texto no soporta .createChoice, sino validación.
-    // Para simplificar el Quiz, las preguntas de texto requieren corrección manual del profesor.
+    item.setRequired(this.config.preguntasObligatorias !== false);
   }
 
   /**
-   * Añade mensajes de retroalimentación a la pregunta si se definieron en el Excel.
+   * Añade mensajes de retroalimentación a la pregunta si se definieron en la hoja.
    * @private
    */
   _inyectarFeedback(item, dto) {
-    if (dto.feedbackCorrecto || dto.feedbackIncorrecto) {
-      let feedbackBuilder = FormApp.createFeedback();
-      
-      if (dto.feedbackCorrecto) {
-        feedbackBuilder.setText(dto.feedbackCorrecto);
-        item.setFeedbackForCorrect(feedbackBuilder.build());
-      }
-      
-      if (dto.feedbackIncorrecto) {
-        feedbackBuilder = FormApp.createFeedback(); // Nuevo constructor para incorrecto
-        feedbackBuilder.setText(dto.feedbackIncorrecto);
-        item.setFeedbackForIncorrect(feedbackBuilder.build());
-      }
+    if (dto.feedbackCorrecto) {
+      item.setFeedbackForCorrect(FormApp.createFeedback().setText(dto.feedbackCorrecto).build());
+    }
+    if (dto.feedbackIncorrecto) {
+      item.setFeedbackForIncorrect(FormApp.createFeedback().setText(dto.feedbackIncorrecto).build());
     }
   }
 
@@ -317,38 +323,52 @@ class FormBuilder {
   // --------------------------------------------------------------------------
 
   /**
-   * DTO (Data Transfer Object) Transforma una fila cruda en un objeto estructurado.
+   * DTO: transforma una fila cruda en un objeto estructurado.
    * @private
    */
   _extraerDatosFila(row) {
     const opcionesExtraidas = this.indices.opciones
       .map(idx => String(row[idx] || '').trim())
-      .filter(op => op !== ''); // Limpiar opciones vacías
+      .filter(op => op !== '');
+
+    // Usar puntosDefault del usuario si la celda está vacía
+    const puntosDefault = parseInt(this.config.puntosDefault, 10) || 0;
+    const puntosRaw = parseInt(row[this.indices.puntos], 10);
 
     return {
-      pregunta: this._celdaComoString(row, this.indices.pregunta),
-      tipo: this._celdaComoString(row, this.indices.tipo) || 'test',
-      opciones: opcionesExtraidas,
-      correcta: this._celdaComoString(row, this.indices.correcta),
-      puntos: parseInt(row[this.indices.puntos], 10) || 0,
-      feedbackCorrecto: this._celdaComoString(row, this.indices.feedbackCorrecto),
-      feedbackIncorrecto: this._celdaComoString(row, this.indices.feedbackIncorrecto)
+      pregunta:          this._celdaComoString(row, this.indices.pregunta),
+      tipo:              this._celdaComoString(row, this.indices.tipo) || 'test',
+      opciones:          opcionesExtraidas,
+      correcta:          this._celdaComoString(row, this.indices.correcta),
+      puntos:            isNaN(puntosRaw) ? puntosDefault : puntosRaw,
+      feedbackCorrecto:  this._celdaComoString(row, this.indices.feedbackCorrecto),
+      feedbackIncorrecto:this._celdaComoString(row, this.indices.feedbackIncorrecto)
     };
   }
 
+  /**
+   * Valida que una fila tenga los datos mínimos necesarios para crear una pregunta.
+   * @private
+   */
   _validarFila(dto, numeroFila) {
     if (!dto.pregunta) {
-      this._registrarLog(`WARN`, `Fila ${numeroFila}: Sin pregunta definida.`);
+      this._registrarLog('WARN', `Fila ${numeroFila}: Sin pregunta definida.`);
       return false;
     }
 
-    if (dto.tipo !== 'texto' && dto.opciones.length < 2) {
-      this._registrarLog(`WARN`, `Fila ${numeroFila}: Tipo '${dto.tipo}' requiere al menos 2 opciones.`);
+    const tipo = dto.tipo.toLowerCase();
+    const esTexto = tipo === 'texto' || tipo === 'abierta';
+
+    if (!esTexto && dto.opciones.length < 2) {
+      this._registrarLog('WARN', `Fila ${numeroFila}: Tipo '${dto.tipo}' requiere al menos 2 opciones.`);
       return false;
     }
 
-    if (dto.tipo === 'test' && !dto.opciones.includes(dto.correcta)) {
-      this._registrarLog(`WARN`, `Fila ${numeroFila}: La respuesta correcta '${dto.correcta}' no coincide exactamente con ninguna opción dada.`);
+    // Para opción múltiple (todo lo que no sea texto ni casillas), la respuesta correcta
+    // debe coincidir exactamente con una de las opciones.
+    const esCasillas = tipo === 'casillas' || tipo === 'multiple';
+    if (!esTexto && !esCasillas && !dto.opciones.includes(dto.correcta)) {
+      this._registrarLog('WARN', `Fila ${numeroFila}: La respuesta correcta '${dto.correcta}' no coincide con ninguna opción (comprueba mayúsculas y espacios).`);
       return false;
     }
 
@@ -379,8 +399,7 @@ class FormBuilder {
   }
 
   /**
-   * Mueve el formulario recién creado a la carpeta donde reside esta hoja de cálculo.
-   * Evita ensuciar la unidad principal "Mi Unidad".
+   * Mueve el formulario recién creado a la carpeta donde reside la hoja de cálculo.
    * @private
    */
   _moverFormularioACarpetaActual() {
@@ -388,14 +407,14 @@ class FormBuilder {
       const formFile = DriveApp.getFileById(this.form.getId());
       const sheetFile = DriveApp.getFileById(this.spreadsheet.getId());
       const iteradorCarpetas = sheetFile.getParents();
-      
+
       if (iteradorCarpetas.hasNext()) {
         const carpetaDestino = iteradorCarpetas.next();
         formFile.moveTo(carpetaDestino);
-        this._registrarLog(`INFO`, `Formulario movido a la carpeta: ${carpetaDestino.getName()}`);
+        this._registrarLog('INFO', `Formulario movido a la carpeta: ${carpetaDestino.getName()}`);
       }
     } catch (e) {
-      this._registrarLog(`ERROR`, `No se pudo mover el formulario de carpeta. ¿Faltan permisos de Drive? Detalle: ${e.message}`);
+      this._registrarLog('ERROR', `No se pudo mover el formulario. ¿Faltan permisos de Drive? Detalle: ${e.message}`);
     }
   }
 
@@ -405,13 +424,11 @@ class FormBuilder {
    */
   _registrarLog(nivel, mensaje) {
     const timestamp = new Date().toLocaleTimeString();
-    const textoLog = `[${timestamp}] [${nivel}] ${mensaje}`;
-    this.logAuditoria.push(textoLog);
-    // console.log(textoLog); // Descomentar para depuración en Stackdriver
+    this.logAuditoria.push(`[${timestamp}] [${nivel}] ${mensaje}`);
   }
 
   /**
-   * Exporta el array de auditoría a una nueva pestaña en la Hoja de Cálculo.
+   * Exporta el array de auditoría a una pestaña de la Hoja de Cálculo.
    * @private
    */
   _guardarLogsEnHoja() {
@@ -423,18 +440,13 @@ class FormBuilder {
     }
 
     const fechaActual = new Date().toLocaleDateString();
-    
-    // Procesar y separar el texto del log
     const filasParaInsertar = this.logAuditoria.map(log => {
       const partes = log.match(/\[(.*?)\] \[(.*?)\] (.*)/);
-      if (partes) {
-        return [`${fechaActual} ${partes[1]}`, partes[2], partes[3]];
-      }
+      if (partes) return [`${fechaActual} ${partes[1]}`, partes[2], partes[3]];
       return [fechaActual, "DESCONOCIDO", log];
     });
 
     if (filasParaInsertar.length > 0) {
-      // Inserción en bloque (batch insertion) para máxima velocidad
       hojaLogs.getRange(hojaLogs.getLastRow() + 1, 1, filasParaInsertar.length, 3).setValues(filasParaInsertar);
       hojaLogs.autoResizeColumns(1, 3);
     }
@@ -442,7 +454,7 @@ class FormBuilder {
 }
 
 /**
- * Función auxiliar para invocar desde el menú la creación rápida de la hoja de logs
+ * Función auxiliar para crear la hoja de logs desde el menú.
  */
 function crearHojaLogs() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
