@@ -2,34 +2,42 @@
 <html>
   <head>
     <base target="_top">
-    <!-- Importar fuente moderna -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
       :root {
         --primary: #1a73e8;
         --primary-hover: #1557b0;
+        --primary-light: rgba(26, 115, 232, 0.08);
         --bg-color: #f8f9fa;
         --card-bg: #ffffff;
         --text-color: #202124;
         --text-muted: #5f6368;
         --border-color: #dadce0;
         --success-bg: #e6f4ea;
+        --success-border: #cce8d6;
+        --success-text: #137333;
         --error-bg: #fce8e6;
+        --error-border: #fad2cf;
+        --error-text: #c5221f;
+        --warn-bg: #fef7e0;
+        --warn-border: #fde293;
+        --warn-text: #ea8600;
         --radius: 8px;
       }
 
+      * { box-sizing: border-box; }
+
       body {
         font-family: 'Inter', Roboto, sans-serif;
-        padding: 0;
+        padding: 0; margin: 0;
         color: var(--text-color);
         background-color: var(--bg-color);
-        margin: 0;
         display: flex;
         flex-direction: column;
         height: 100vh;
       }
 
-      /* Cabecera / Header */
+      /* ═══════════════════ HEADER ═══════════════════ */
       .header {
         background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
         color: white;
@@ -38,21 +46,38 @@
       }
 
       .header h2 {
-        font-size: 18px;
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-weight: 600;
+        font-size: 18px; margin: 0;
+        display: flex; align-items: center; gap: 8px; font-weight: 600;
       }
 
       .header p {
-        font-size: 12px;
-        margin: 4px 0 0 28px;
-        opacity: 0.9;
+        font-size: 12px; margin: 4px 0 0 28px; opacity: 0.9;
       }
 
-      /* Sistema de Pestañas (Tabs) */
+      /* ═══════════════════ BADGE DE PREVISUALIZACIÓN ═══════════════════ */
+      .preview-badge {
+        margin: 12px 16px 0;
+        padding: 10px 14px;
+        border-radius: var(--radius);
+        font-size: 12px;
+        line-height: 1.5;
+        display: none; /* Se muestra al cargar datos */
+        animation: fadeIn 0.3s ease;
+      }
+
+      .preview-badge.ok {
+        background: var(--success-bg); border: 1px solid var(--success-border); color: var(--success-text);
+      }
+      .preview-badge.warn {
+        background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--warn-text);
+      }
+      .preview-badge.error {
+        background: var(--error-bg); border: 1px solid var(--error-border); color: var(--error-text);
+      }
+
+      .preview-badge strong { font-weight: 600; }
+
+      /* ═══════════════════ TABS ═══════════════════ */
       .tabs {
         display: flex;
         background: var(--card-bg);
@@ -61,276 +86,287 @@
       }
 
       .tab {
-        flex: 1;
-        text-align: center;
-        padding: 12px 0;
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--text-muted);
-        cursor: pointer;
+        flex: 1; text-align: center;
+        padding: 12px 0; font-size: 13px; font-weight: 600;
+        color: var(--text-muted); cursor: pointer;
         border-bottom: 3px solid transparent;
         transition: all 0.2s ease;
+        user-select: none;
       }
 
-      .tab:hover {
-        color: var(--primary);
-        background: rgba(26, 115, 232, 0.04);
-      }
+      .tab:hover { color: var(--primary); background: var(--primary-light); }
+      .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
 
-      .tab.active {
-        color: var(--primary);
-        border-bottom-color: var(--primary);
-      }
-
-      /* Contenido principal */
+      /* ═══════════════════ MAIN ═══════════════════ */
       .main-content {
-        flex: 1;
-        overflow-y: auto;
-        padding: 16px;
+        flex: 1; overflow-y: auto; padding: 16px;
       }
 
       .tab-content {
-        display: none;
-        animation: fadeIn 0.3s ease;
+        display: none; animation: fadeIn 0.3s ease;
       }
-
-      .tab-content.active {
-        display: block;
-      }
+      .tab-content.active { display: block; }
 
       @keyframes fadeIn {
         from { opacity: 0; transform: translateY(5px); }
-        to { opacity: 1; transform: translateY(0); }
+        to   { opacity: 1; transform: translateY(0); }
       }
 
-      /* Formularios y Tarjetas */
+      /* ═══════════════════ CARDS & FORMS ═══════════════════ */
       .card {
         background: var(--card-bg);
         border: 1px solid var(--border-color);
         border-radius: var(--radius);
-        padding: 16px;
-        margin-bottom: 16px;
+        padding: 16px; margin-bottom: 16px;
         box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+      }
+
+      .card-title {
+        font-size: 11px; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.5px; color: var(--text-muted);
+        margin: 0 0 12px 0;
       }
 
       .form-group { margin-bottom: 16px; }
       .form-group:last-child { margin-bottom: 0; }
-      
-      label.block-label { 
-        display: block; 
-        font-size: 13px; 
-        font-weight: 600; 
-        margin-bottom: 6px; 
-        color: #3c4043;
+
+      label.block-label {
+        display: block; font-size: 13px; font-weight: 600;
+        margin-bottom: 6px; color: #3c4043;
       }
 
       input[type="text"], input[type="number"], textarea, select {
-        width: 100%; 
-        padding: 10px; 
-        border: 1px solid var(--border-color); 
-        border-radius: 6px; 
-        box-sizing: border-box; 
-        font-size: 13px; 
-        font-family: inherit;
+        width: 100%; padding: 10px;
+        border: 1px solid var(--border-color); border-radius: 6px;
+        font-size: 13px; font-family: inherit;
         transition: border-color 0.2s, box-shadow 0.2s;
         background-color: #f8f9fa;
       }
 
-      input[type="text"]:focus, textarea:focus, select:focus {
+      input[type="text"]:focus, input[type="number"]:focus, textarea:focus, select:focus {
         outline: none;
         border-color: var(--primary);
         background-color: #fff;
         box-shadow: 0 0 0 2px rgba(26,115,232,0.2);
       }
 
-      textarea { resize: vertical; min-height: 70px; }
+      textarea { resize: vertical; min-height: 60px; }
 
-      /* Color Picker Moderno */
-      .color-picker-container {
-        display: flex;
-        align-items: center;
-        gap: 12px;
+      .field-hint {
+        font-size: 11px; color: #888; margin-top: 4px; display: block; line-height: 1.4;
       }
-      
+
+      /* ═══════════════════ COLOR PICKER ═══════════════════ */
+      .color-picker-row {
+        display: flex; align-items: center; gap: 12px;
+      }
+
       input[type="color"] {
-        -webkit-appearance: none;
-        border: none;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        cursor: pointer;
-        padding: 0;
-        background: none;
+        -webkit-appearance: none; border: none;
+        width: 36px; height: 36px; border-radius: 50%;
+        cursor: pointer; padding: 0; background: none;
       }
-      
       input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
       input[type="color"]::-webkit-color-swatch { border: 2px solid var(--border-color); border-radius: 50%; }
 
-      /* Interruptores Modernos (Toggles iOS/Material Style) */
-      .toggle-container {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 8px 0;
+      .color-hex {
+        font-family: 'SF Mono', 'Fira Code', monospace;
+        font-size: 13px; color: var(--text-muted);
       }
 
-      .toggle-text {
-        flex: 1;
+      /* ═══════════════════ TOGGLE SWITCH ═══════════════════ */
+      .toggle-row {
+        display: flex; align-items: flex-start; justify-content: space-between;
+        gap: 12px; padding: 10px 0;
       }
+
+      .toggle-row + .toggle-row {
+        border-top: 1px solid #f1f3f4;
+      }
+
+      .toggle-text { flex: 1; }
 
       .toggle-text strong {
-        display: block;
-        font-size: 13px;
-        color: #202124;
-        margin-bottom: 2px;
+        display: block; font-size: 13px; color: #202124; margin-bottom: 2px;
       }
 
       .toggle-text span {
-        display: block;
-        font-size: 11px;
-        color: var(--text-muted);
-        line-height: 1.3;
+        display: block; font-size: 11px; color: var(--text-muted); line-height: 1.4;
       }
 
       .switch {
-        position: relative;
-        display: inline-block;
-        width: 36px;
-        height: 20px;
-        flex-shrink: 0;
-        margin-top: 2px;
+        position: relative; display: inline-block;
+        width: 36px; height: 20px; flex-shrink: 0; margin-top: 2px;
       }
 
       .switch input { opacity: 0; width: 0; height: 0; }
 
       .slider {
-        position: absolute;
-        cursor: pointer;
+        position: absolute; cursor: pointer;
         top: 0; left: 0; right: 0; bottom: 0;
-        background-color: #ccc;
-        transition: .3s;
-        border-radius: 20px;
+        background-color: #ccc; transition: .3s; border-radius: 20px;
       }
 
-      .slider:before {
-        position: absolute;
-        content: "";
-        height: 16px;
-        width: 16px;
-        left: 2px;
-        bottom: 2px;
-        background-color: white;
-        transition: .3s;
-        border-radius: 50%;
+      .slider::before {
+        position: absolute; content: "";
+        height: 16px; width: 16px; left: 2px; bottom: 2px;
+        background-color: white; transition: .3s; border-radius: 50%;
         box-shadow: 0 1px 2px rgba(0,0,0,0.2);
       }
 
       input:checked + .slider { background-color: var(--primary); }
-      input:checked + .slider:before { transform: translateX(16px); }
+      input:checked + .slider::before { transform: translateX(16px); }
 
-      /* Pie de página (Footer flotante) */
+      /* ═══════════════════ FOOTER ═══════════════════ */
       .footer {
-        padding: 16px;
+        padding: 12px 16px;
         background: var(--card-bg);
         border-top: 1px solid var(--border-color);
         box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
       }
 
-      button {
-        background-color: var(--primary); 
-        color: white; 
-        border: none; 
-        border-radius: 6px; 
-        padding: 12px; 
-        width: 100%; 
-        font-size: 14px; 
-        font-weight: 600; 
-        cursor: pointer; 
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
+      .btn-primary {
+        background-color: var(--primary); color: white; border: none;
+        border-radius: 6px; padding: 12px; width: 100%;
+        font-size: 14px; font-weight: 600; cursor: pointer;
+        display: flex; justify-content: center; align-items: center; gap: 8px;
         transition: all 0.2s;
       }
 
-      button:hover { 
-        background-color: var(--primary-hover); 
+      .btn-primary:hover {
+        background-color: var(--primary-hover);
         box-shadow: 0 2px 6px rgba(26,115,232,0.3);
       }
 
-      button:disabled {
-        background-color: #ccc;
-        cursor: not-allowed;
-        box-shadow: none;
+      .btn-primary:disabled {
+        background-color: #ccc; cursor: not-allowed; box-shadow: none;
       }
 
-      /* Estados de Carga y Resultados */
-      #loader, #resultado { display: none; text-align: center; padding: 20px; }
-      
-      .spinner { 
-        border: 3px solid rgba(26,115,232,0.1); 
-        border-left-color: var(--primary); 
-        border-radius: 50%; 
-        width: 32px; 
-        height: 32px; 
-        animation: spin 1s linear infinite; 
-        margin: 0 auto; 
+      .btn-secondary {
+        background: transparent; color: var(--primary);
+        border: 1px solid var(--primary); border-radius: 6px;
+        padding: 10px; width: 100%; font-size: 13px; font-weight: 600;
+        cursor: pointer; margin-top: 8px; transition: all 0.2s;
+      }
+      .btn-secondary:hover { background: var(--primary-light); }
+
+      /* ═══════════════════ LOADER ═══════════════════ */
+      #loader { display: none; text-align: center; padding: 40px 20px; }
+
+      .spinner {
+        border: 3px solid rgba(26,115,232,0.1);
+        border-left-color: var(--primary);
+        border-radius: 50%; width: 36px; height: 36px;
+        animation: spin 0.8s linear infinite; margin: 0 auto;
       }
 
-      .resultado { padding: 16px; border-radius: var(--radius); font-size: 13px; text-align: left;}
-      .success { background-color: var(--success-bg); border: 1px solid #cce8d6; }
-      .error { background-color: var(--error-bg); border: 1px solid #fad2cf; }
-      
-      .link-btn { 
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      .loader-title {
+        margin: 16px 0 6px; font-size: 15px; font-weight: 600; color: var(--primary);
+      }
+
+      .loader-steps {
+        font-size: 12px; color: #666; line-height: 1.6; margin: 0;
+      }
+
+      /* ═══════════════════ RESULTADO ═══════════════════ */
+      #resultado { display: none; padding: 20px 16px; }
+
+      .resultado-panel {
+        padding: 20px; border-radius: var(--radius); font-size: 13px; text-align: left;
+      }
+      .resultado-panel.success { background-color: var(--success-bg); border: 1px solid var(--success-border); }
+      .resultado-panel.error   { background-color: var(--error-bg);   border: 1px solid var(--error-border);   }
+
+      .result-icon { text-align: center; font-size: 32px; margin-bottom: 8px; }
+
+      .result-title {
+        display: block; text-align: center; font-size: 15px; font-weight: 700;
+        margin-bottom: 4px;
+      }
+
+      .result-stats {
+        text-align: center; margin: 6px 0 16px; font-size: 13px;
+      }
+
+      .link-btn {
         display: flex; justify-content: center; align-items: center; gap: 6px;
-        margin-top: 10px; padding: 10px; border-radius: 6px; 
+        margin-top: 10px; padding: 10px; border-radius: 6px;
         text-decoration: none; font-weight: 600; font-size: 13px;
         transition: background-color 0.2s;
       }
-      .link-edit { background-color: white; border: 1px solid var(--border-color); color: var(--text-color);}
+      .link-edit { background-color: white; border: 1px solid var(--border-color); color: var(--text-color); }
       .link-edit:hover { background-color: #f1f3f4; }
       .link-view { background-color: var(--primary); color: white; }
       .link-view:hover { background-color: var(--primary-hover); }
 
+      /* ═══════════════════ LOG PANEL ═══════════════════ */
+      .log-panel {
+        margin-top: 16px; padding: 12px;
+        background: #f8f9fa; border: 1px solid var(--border-color);
+        border-radius: var(--radius);
+      }
+
+      .log-panel summary {
+        font-size: 12px; font-weight: 600; cursor: pointer;
+        color: var(--text-muted); user-select: none;
+      }
+
+      .log-list {
+        margin: 8px 0 0 0; padding: 0; list-style: none;
+        max-height: 200px; overflow-y: auto;
+        font-size: 11px; font-family: 'SF Mono', 'Fira Code', monospace;
+        line-height: 1.6;
+      }
+
+      .log-list li { padding: 2px 4px; border-radius: 3px; }
+      .log-list li:nth-child(odd) { background: #f1f3f4; }
     </style>
   </head>
   <body>
 
+    <!-- ═══════════════════ HEADER ═══════════════════ -->
     <div class="header">
       <h2>⚡ Creador Pro</h2>
       <p>Generador inteligente de formularios</p>
     </div>
 
-    <!-- Pestañas de Navegación -->
-    <div class="tabs">
+    <!-- ═══════════════════ PREVIEW BADGE ═══════════════════ -->
+    <div id="previewBadge" class="preview-badge"></div>
+
+    <!-- ═══════════════════ TABS ═══════════════════ -->
+    <div class="tabs" id="nav-tabs">
       <div class="tab active" onclick="openTab('tab-general', this)">📝 General</div>
       <div class="tab" onclick="openTab('tab-ajustes', this)">⚙️ Ajustes</div>
       <div class="tab" onclick="openTab('tab-avanzado', this)">🎨 Extra</div>
     </div>
 
+    <!-- ═══════════════════ MAIN CONTENT ═══════════════════ -->
     <div class="main-content">
       <form id="formularioConfig" onsubmit="procesarFormulario(event)">
-        
+
         <!-- PESTAÑA 1: GENERAL -->
         <div id="tab-general" class="tab-content active">
           <div class="card">
             <div class="form-group">
-              <label class="block-label" for="nombreFormulario">Título del Documento</label>
-              <input type="text" id="nombreFormulario" name="nombreFormulario" placeholder="Ej. Examen de Historia - Tema 4" required>
+              <label class="block-label" for="nombreFormulario">Título del Cuestionario</label>
+              <input type="text" id="nombreFormulario" name="nombreFormulario"
+                     placeholder="Ej. Examen de Historia — Tema 4" required>
             </div>
-
             <div class="form-group">
               <label class="block-label" for="mensajeAgradecimiento">Mensaje al Finalizar</label>
-              <textarea id="mensajeAgradecimiento" placeholder="Ej. ¡Enhorabuena! Las notas se publicarán mañana a primera hora."></textarea>
+              <textarea id="mensajeAgradecimiento"
+                        placeholder="Ej. ¡Enhorabuena! Las notas se publicarán mañana."></textarea>
+              <span class="field-hint">Se muestra al alumno tras enviar. Déjalo en blanco para el mensaje predeterminado.</span>
             </div>
           </div>
 
           <div class="card">
-             <div class="toggle-container">
+            <div class="toggle-row">
               <div class="toggle-text">
                 <strong>Datos del Alumno</strong>
-                <span>Pedir Nombre, Apellidos y Grupo obligatoriamente en la primera página.</span>
+                <span>Añade una primera página con campos de Nombre y Grupo obligatorios.</span>
               </div>
               <label class="switch">
                 <input type="checkbox" id="pedirDatosAlumno" checked>
@@ -343,10 +379,12 @@
         <!-- PESTAÑA 2: AJUSTES ESTRUCTURALES -->
         <div id="tab-ajustes" class="tab-content">
           <div class="card">
-            <div class="toggle-container" style="border-bottom: 1px solid #eee; padding-bottom: 12px; margin-bottom: 12px;">
+            <p class="card-title">Comportamiento del examen</p>
+
+            <div class="toggle-row">
               <div class="toggle-text">
-                <strong>Pregunta por página</strong>
-                <span>Añade saltos de sección. Ideal para evitar agobio visual en exámenes largos.</span>
+                <strong>Pregunta por Página</strong>
+                <span>Muestra cada pregunta en una página separada. Ideal para exámenes largos.</span>
               </div>
               <label class="switch">
                 <input type="checkbox" id="preguntaPorPagina">
@@ -354,21 +392,21 @@
               </label>
             </div>
 
-            <div class="toggle-container" style="border-bottom: 1px solid #eee; padding-bottom: 12px; margin-bottom: 12px;">
+            <div class="toggle-row">
               <div class="toggle-text">
-                <strong>Barajar Opciones</strong>
-                <span>El orden de las respuestas (A, B, C...) será diferente para cada alumno.</span>
+                <strong>Barajar Preguntas</strong>
+                <span>El orden de las preguntas será aleatorio para cada alumno.</span>
               </div>
               <label class="switch">
-                <input type="checkbox" id="barajarOpciones" checked>
+                <input type="checkbox" id="barajarPreguntas" checked>
                 <span class="slider"></span>
               </label>
             </div>
 
-            <div class="toggle-container">
+            <div class="toggle-row">
               <div class="toggle-text">
                 <strong>Preguntas Obligatorias</strong>
-                <span>Fuerza a responder todas las cuestiones generadas.</span>
+                <span>Fuerza a responder todas las preguntas antes de enviar.</span>
               </div>
               <label class="switch">
                 <input type="checkbox" id="preguntasObligatorias" checked>
@@ -378,143 +416,287 @@
           </div>
         </div>
 
-        <!-- PESTAÑA 3: EXTRA Y ESTILOS -->
+        <!-- PESTAÑA 3: EXTRA -->
         <div id="tab-avanzado" class="tab-content">
           <div class="card">
+            <p class="card-title">Puntuación</p>
             <div class="form-group">
-              <label class="block-label" for="puntosDefault">Puntuación por defecto</label>
-              <input type="number" id="puntosDefault" value="1" min="0" placeholder="Puntos si la celda está vacía">
-              <span style="font-size: 11px; color: #666; margin-top: 4px; display: block;">Se aplicará si dejas la columna 'Puntos' en blanco.</span>
+              <label class="block-label" for="puntosDefault">Puntos por defecto</label>
+              <input type="number" id="puntosDefault" value="1" min="0" max="100" step="1">
+              <span class="field-hint">Se aplica cuando la columna "Puntos" de una fila está vacía.</span>
             </div>
           </div>
 
           <div class="card">
-             <div class="form-group">
-              <label class="block-label" for="colorTema">Color Principal del Formulario</label>
-              <div class="color-picker-container">
-                <input type="color" id="colorTema" value="#673AB7">
-                <span style="font-size: 13px; color: #5f6368;">Selecciona un tema visual</span>
+            <p class="card-title">Apariencia</p>
+            <div class="form-group">
+              <label class="block-label" for="colorTema">Color Principal</label>
+              <div class="color-picker-row">
+                <input type="color" id="colorTema" value="#673AB7" oninput="actualizarHexColor()">
+                <span class="color-hex" id="colorHexLabel">#673AB7</span>
               </div>
+              <span class="field-hint">Nota: Google Forms limita la paleta de colores disponible. Se aplicará el color más cercano.</span>
+            </div>
+
+            <div class="toggle-row">
+              <div class="toggle-text">
+                <strong>Barra de Progreso</strong>
+                <span>Muestra al alumno cuánto le queda del examen.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="barraProgreso" checked>
+                <span class="slider"></span>
+              </label>
             </div>
           </div>
         </div>
 
       </form>
 
-      <!-- Zonas de Estado -->
+      <!-- ═══════════════════ LOADER ═══════════════════ -->
       <div id="loader">
         <div class="spinner"></div>
-        <h3 style="margin: 16px 0 8px; font-size: 15px; color: var(--primary);">Construyendo...</h3>
-        <p style="font-size: 12px; color: #666; margin: 0; line-height: 1.5;">Leyendo hoja de cálculo, procesando validaciones y aplicando configuraciones.</p>
+        <p class="loader-title" id="loaderTitle">Construyendo formulario...</p>
+        <p class="loader-steps" id="loaderSteps">Leyendo hoja de cálculo y validando estructura de datos...</p>
       </div>
 
-      <div id="resultado" class="resultado"></div>
+      <!-- ═══════════════════ RESULTADO ═══════════════════ -->
+      <div id="resultado"></div>
     </div>
 
-    <!-- Footer fijo con el botón de envío -->
+    <!-- ═══════════════════ FOOTER ═══════════════════ -->
     <div class="footer" id="footer-controls">
-      <button type="button" id="btnGenerar" onclick="document.getElementById('formularioConfig').requestSubmit()">
+      <button type="button" class="btn-primary" id="btnGenerar"
+              onclick="document.getElementById('formularioConfig').requestSubmit()">
         🚀 Generar Formulario
       </button>
     </div>
 
+    <!-- ═══════════════════ JAVASCRIPT ═══════════════════ -->
     <script>
-      // Lógica de Pestañas
+      // ─── Estado global ───
+      let resumenCargado = false;
+
+      // ─── Inicialización: cargar preview de la hoja ───
+      (function init() {
+        google.script.run
+          .withSuccessHandler(mostrarResumen)
+          .withFailureHandler(function() { /* silencioso */ })
+          .obtenerResumenHoja();
+      })();
+
+      function mostrarResumen(resumen) {
+        resumenCargado = true;
+        const badge = document.getElementById('previewBadge');
+
+        if (!resumen || resumen.filas === 0) {
+          badge.className = 'preview-badge error';
+          badge.innerHTML = '<strong>⚠️ Hoja vacía.</strong> Añade encabezados y datos antes de generar.';
+          badge.style.display = 'block';
+          document.getElementById('btnGenerar').disabled = true;
+          return;
+        }
+
+        if (resumen.advertencias && resumen.advertencias.length > 0) {
+          badge.className = 'preview-badge warn';
+          badge.innerHTML = `<strong>📊 ${resumen.filas} preguntas detectadas</strong> en "${resumen.nombreHoja}"<br>` +
+            resumen.advertencias.map(a => '⚠️ ' + a).join('<br>');
+          badge.style.display = 'block';
+          return;
+        }
+
+        badge.className = 'preview-badge ok';
+        badge.innerHTML = `<strong>✅ ${resumen.filas} preguntas listas</strong> en "${resumen.nombreHoja}"`;
+        badge.style.display = 'block';
+      }
+
+      // ─── Tabs ───
       function openTab(tabName, element) {
-        // Ocultar todas las pestañas
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-        
-        // Mostrar la seleccionada
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.getElementById(tabName).classList.add('active');
         element.classList.add('active');
       }
 
-      // Lógica principal de ejecución
+      // ─── Color picker label ───
+      function actualizarHexColor() {
+        document.getElementById('colorHexLabel').textContent =
+          document.getElementById('colorTema').value.toUpperCase();
+      }
+
+      // ─── Mensajes de carga animados ───
+      const loadingSteps = [
+        'Leyendo hoja de cálculo y validando encabezados...',
+        'Mapeando columnas de preguntas y opciones...',
+        'Creando formulario en Google Forms...',
+        'Inyectando preguntas con feedback y puntuaciones...',
+        'Organizando archivos en Google Drive...'
+      ];
+
+      let stepIndex = 0;
+      let stepInterval = null;
+
+      function iniciarAnimacionCarga() {
+        stepIndex = 0;
+        const stepsEl = document.getElementById('loaderSteps');
+        stepsEl.textContent = loadingSteps[0];
+        stepInterval = setInterval(function() {
+          stepIndex++;
+          if (stepIndex < loadingSteps.length) {
+            stepsEl.style.opacity = 0;
+            setTimeout(function() {
+              stepsEl.textContent = loadingSteps[stepIndex];
+              stepsEl.style.opacity = 1;
+            }, 200);
+          }
+        }, 2500);
+      }
+
+      function detenerAnimacionCarga() {
+        if (stepInterval) clearInterval(stepInterval);
+      }
+
+      // ─── PROCESAMIENTO PRINCIPAL ───
       function procesarFormulario(evento) {
         evento.preventDefault();
-        
-        // Cambios en la UI durante la carga
+
+        // Transición de UI
         document.getElementById('footer-controls').style.display = 'none';
         document.getElementById('formularioConfig').style.display = 'none';
-        document.querySelector('.tabs').style.display = 'none';
+        document.getElementById('nav-tabs').style.display = 'none';
+        document.getElementById('previewBadge').style.display = 'none';
         document.getElementById('loader').style.display = 'block';
+        iniciarAnimacionCarga();
 
-        // Recopilación de todos los datos nuevos
-        const configuracion = {
-          nombreFormulario: document.getElementById('nombreFormulario').value,
-          mensajeAgradecimiento: document.getElementById('mensajeAgradecimiento').value,
-          preguntaPorPagina: document.getElementById('preguntaPorPagina').checked,
-          barajarOpciones: document.getElementById('barajarOpciones').checked,
-          preguntasObligatorias: document.getElementById('preguntasObligatorias').checked,
-          pedirDatosAlumno: document.getElementById('pedirDatosAlumno').checked,
-          puntosDefault: document.getElementById('puntosDefault').value,
-          colorTema: document.getElementById('colorTema').value,
-          barraProgreso: true 
+        // Recopilar TODOS los datos del sidebar
+        var configuracion = {
+          nombreFormulario:       document.getElementById('nombreFormulario').value,
+          mensajeAgradecimiento:  document.getElementById('mensajeAgradecimiento').value,
+          preguntaPorPagina:      document.getElementById('preguntaPorPagina').checked,
+          barajarPreguntas:       document.getElementById('barajarPreguntas').checked,
+          preguntasObligatorias:  document.getElementById('preguntasObligatorias').checked,
+          pedirDatosAlumno:       document.getElementById('pedirDatosAlumno').checked,
+          puntosDefault:          document.getElementById('puntosDefault').value,
+          colorTema:              document.getElementById('colorTema').value,
+          barraProgreso:          document.getElementById('barraProgreso').checked
         };
 
-        // Llamada al Backend (codigo.gs)
         google.script.run
           .withSuccessHandler(manejarExito)
           .withFailureHandler(manejarErrorCritico)
           .generarFormularioDesdeHoja(configuracion);
       }
 
+      // ─── ÉXITO ───
       function manejarExito(respuesta) {
+        detenerAnimacionCarga();
         document.getElementById('loader').style.display = 'none';
-        const divResultado = document.getElementById('resultado');
-        divResultado.style.display = 'block';
+        var div = document.getElementById('resultado');
+        div.style.display = 'block';
 
         if (respuesta.success) {
-          divResultado.className = 'resultado success';
-          divResultado.innerHTML = `
-            <div style="text-align: center; margin-bottom: 12px; font-size: 24px;">🎉</div>
-            <strong style="display:block; text-align:center; font-size:15px; color:#0d652d; margin-bottom:4px;">¡Generación Exitosa!</strong>
-            <p style="text-align:center; color:#137333; margin-top:0;">Se han procesado e insertado <b>${respuesta.count}</b> preguntas.</p>
-            
-            <a href="${respuesta.editUrl}" target="_blank" class="link-btn link-edit">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-              Editar Cuestionario
-            </a>
-            
-            <a href="${respuesta.publishedUrl}" target="_blank" class="link-btn link-view">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-              Vista de Alumno
-            </a>
-            
-            <button onclick="reiniciarApp()" style="margin-top: 20px; background: transparent; color: var(--primary); border: 1px solid var(--primary); padding: 8px;">
-              Crear otro cuestionario
-            </button>
-          `;
+          // Estadísticas por tipo
+          var tipoStats = '';
+          if (respuesta.porTipo) {
+            var tipos = Object.entries(respuesta.porTipo)
+              .map(function(e) { return e[0] + ': ' + e[1]; })
+              .join(' · ');
+            tipoStats = '<span style="font-size:12px;color:#555;">(' + tipos + ')</span>';
+          }
+
+          // Registro colapsable
+          var logHTML = '';
+          if (respuesta.log && respuesta.log.length > 0) {
+            logHTML = '<div class="log-panel"><details><summary>📋 Ver registro de auditoría (' + respuesta.log.length + ' entradas)</summary>' +
+              '<ul class="log-list">' +
+              respuesta.log.map(function(l) { return '<li>' + escapeHtml(l) + '</li>'; }).join('') +
+              '</ul></details></div>';
+          }
+
+          div.innerHTML =
+            '<div class="resultado-panel success">' +
+              '<div class="result-icon">🎉</div>' +
+              '<strong class="result-title" style="color:#0d652d;">¡Generación Exitosa!</strong>' +
+              '<p class="result-stats" style="color:#137333;">' +
+                '<b>' + respuesta.count + '</b> preguntas creadas' +
+                (respuesta.omitidas > 0 ? ' · <b>' + respuesta.omitidas + '</b> omitidas' : '') +
+                '<br>' + tipoStats +
+              '</p>' +
+
+              '<a href="' + respuesta.editUrl + '" target="_blank" class="link-btn link-edit">' +
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+                'Editar Cuestionario' +
+              '</a>' +
+
+              '<a href="' + respuesta.publishedUrl + '" target="_blank" class="link-btn link-view">' +
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>' +
+                'Vista de Alumno' +
+              '</a>' +
+
+              logHTML +
+
+              '<button type="button" class="btn-secondary" onclick="reiniciarApp()" style="margin-top:16px;">Crear otro cuestionario</button>' +
+            '</div>';
+
         } else {
-          divResultado.className = 'resultado error';
-          divResultado.innerHTML = `
-            <strong style="color: #c5221f;">⚠️ Formato Incorrecto</strong><br>
-            <p style="margin: 8px 0;">${respuesta.error}</p>
-            <button onclick="reiniciarApp()" style="padding: 8px;">Volver y corregir</button>
-          `;
+          // Registro para errores
+          var logErrorHTML = '';
+          if (respuesta.log && respuesta.log.length > 0) {
+            logErrorHTML = '<div class="log-panel" style="margin-top:12px;"><details open><summary>📋 Registro de auditoría</summary>' +
+              '<ul class="log-list">' +
+              respuesta.log.map(function(l) { return '<li>' + escapeHtml(l) + '</li>'; }).join('') +
+              '</ul></details></div>';
+          }
+
+          div.innerHTML =
+            '<div class="resultado-panel error">' +
+              '<div class="result-icon">⚠️</div>' +
+              '<strong class="result-title" style="color:#c5221f;">Formato Incorrecto</strong>' +
+              '<p style="margin:8px 0;font-size:13px;color:#c5221f;">' + escapeHtml(respuesta.error) + '</p>' +
+              logErrorHTML +
+              '<button type="button" class="btn-secondary" onclick="reiniciarApp()">Volver y corregir</button>' +
+            '</div>';
         }
       }
 
+      // ─── ERROR CRÍTICO ───
       function manejarErrorCritico(error) {
+        detenerAnimacionCarga();
         document.getElementById('loader').style.display = 'none';
-        const divResultado = document.getElementById('resultado');
-        divResultado.style.display = 'block';
-        divResultado.className = 'resultado error';
-        divResultado.innerHTML = `
-          <strong style="color: #c5221f;">🚨 Fallo de Conexión</strong><br>
-          <p style="margin: 8px 0;">${error.message}</p>
-          <button onclick="reiniciarApp()" style="padding: 8px;">Reintentar</button>`;
+        var div = document.getElementById('resultado');
+        div.style.display = 'block';
+        div.innerHTML =
+          '<div class="resultado-panel error">' +
+            '<div class="result-icon">🚨</div>' +
+            '<strong class="result-title" style="color:#c5221f;">Fallo de Conexión</strong>' +
+            '<p style="margin:8px 0;font-size:13px;">' + escapeHtml(error.message) + '</p>' +
+            '<button type="button" class="btn-secondary" onclick="reiniciarApp()">Reintentar</button>' +
+          '</div>';
       }
 
+      // ─── REINICIAR ───
       function reiniciarApp() {
         document.getElementById('footer-controls').style.display = 'block';
         document.getElementById('formularioConfig').style.display = 'block';
-        document.querySelector('.tabs').style.display = 'flex';
+        document.getElementById('nav-tabs').style.display = 'flex';
         document.getElementById('resultado').style.display = 'none';
-        
+        document.getElementById('resultado').innerHTML = '';
+        document.getElementById('previewBadge').style.display = 'block';
+
         // Resetear a la primera pestaña
         document.querySelectorAll('.tab')[0].click();
+
+        // Recargar preview
+        google.script.run
+          .withSuccessHandler(mostrarResumen)
+          .obtenerResumenHoja();
+      }
+
+      // ─── UTILIDADES ───
+      function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.appendChild(document.createTextNode(str || ''));
+        return div.innerHTML;
       }
     </script>
   </body>
