@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <!-- Importar fuente moderna -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --primary: #1a73e8;
+        --primary-hover: #1557b0;
+        --bg-color: #f8f9fa;
+        --card-bg: #ffffff;
+        --text-color: #202124;
+        --text-muted: #5f6368;
+        --border-color: #dadce0;
+        --success-bg: #e6f4ea;
+        --error-bg: #fce8e6;
+        --radius: 8px;
+      }
+
+      body {
+        font-family: 'Inter', Roboto, sans-serif;
+        padding: 0;
+        color: var(--text-color);
+        background-color: var(--bg-color);
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+
+      /* Cabecera / Header */
+      .header {
+        background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+        color: white;
+        padding: 20px 16px 16px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+
+      .header h2 {
+        font-size: 18px;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+      }
+
+      .header p {
+        font-size: 12px;
+        margin: 4px 0 0 28px;
+        opacity: 0.9;
+      }
+
+      /* Sistema de Pestañas (Tabs) */
+      .tabs {
+        display: flex;
+        background: var(--card-bg);
+        border-bottom: 1px solid var(--border-color);
+        padding: 0 8px;
+      }
+
+      .tab {
+        flex: 1;
+        text-align: center;
+        padding: 12px 0;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-muted);
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        transition: all 0.2s ease;
+      }
+
+      .tab:hover {
+        color: var(--primary);
+        background: rgba(26, 115, 232, 0.04);
+      }
+
+      .tab.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+      }
+
+      /* Contenido principal */
+      .main-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px;
+      }
+
+      .tab-content {
+        display: none;
+        animation: fadeIn 0.3s ease;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(5px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* Formularios y Tarjetas */
+      .card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius);
+        padding: 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+      }
+
+      .form-group { margin-bottom: 16px; }
+      .form-group:last-child { margin-bottom: 0; }
+      
+      label.block-label { 
+        display: block; 
+        font-size: 13px; 
+        font-weight: 600; 
+        margin-bottom: 6px; 
+        color: #3c4043;
+      }
+
+      input[type="text"], input[type="number"], textarea, select {
+        width: 100%; 
+        padding: 10px; 
+        border: 1px solid var(--border-color); 
+        border-radius: 6px; 
+        box-sizing: border-box; 
+        font-size: 13px; 
+        font-family: inherit;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background-color: #f8f9fa;
+      }
+
+      input[type="text"]:focus, textarea:focus, select:focus {
+        outline: none;
+        border-color: var(--primary);
+        background-color: #fff;
+        box-shadow: 0 0 0 2px rgba(26,115,232,0.2);
+      }
+
+      textarea { resize: vertical; min-height: 70px; }
+
+      /* Color Picker Moderno */
+      .color-picker-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      
+      input[type="color"] {
+        -webkit-appearance: none;
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        padding: 0;
+        background: none;
+      }
+      
+      input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+      input[type="color"]::-webkit-color-swatch { border: 2px solid var(--border-color); border-radius: 50%; }
+
+      /* Interruptores Modernos (Toggles iOS/Material Style) */
+      .toggle-container {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 8px 0;
+      }
+
+      .toggle-text {
+        flex: 1;
+      }
+
+      .toggle-text strong {
+        display: block;
+        font-size: 13px;
+        color: #202124;
+        margin-bottom: 2px;
+      }
+
+      .toggle-text span {
+        display: block;
+        font-size: 11px;
+        color: var(--text-muted);
+        line-height: 1.3;
+      }
+
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 36px;
+        height: 20px;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+
+      .switch input { opacity: 0; width: 0; height: 0; }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: #ccc;
+        transition: .3s;
+        border-radius: 20px;
+      }
+
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 2px;
+        bottom: 2px;
+        background-color: white;
+        transition: .3s;
+        border-radius: 50%;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      }
+
+      input:checked + .slider { background-color: var(--primary); }
+      input:checked + .slider:before { transform: translateX(16px); }
+
+      /* Pie de página (Footer flotante) */
+      .footer {
+        padding: 16px;
+        background: var(--card-bg);
+        border-top: 1px solid var(--border-color);
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+      }
+
+      button {
+        background-color: var(--primary); 
+        color: white; 
+        border: none; 
+        border-radius: 6px; 
+        padding: 12px; 
+        width: 100%; 
+        font-size: 14px; 
+        font-weight: 600; 
+        cursor: pointer; 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+      }
+
+      button:hover { 
+        background-color: var(--primary-hover); 
+        box-shadow: 0 2px 6px rgba(26,115,232,0.3);
+      }
+
+      button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
+      /* Estados de Carga y Resultados */
+      #loader, #resultado { display: none; text-align: center; padding: 20px; }
+      
+      .spinner { 
+        border: 3px solid rgba(26,115,232,0.1); 
+        border-left-color: var(--primary); 
+        border-radius: 50%; 
+        width: 32px; 
+        height: 32px; 
+        animation: spin 1s linear infinite; 
+        margin: 0 auto; 
+      }
+
+      .resultado { padding: 16px; border-radius: var(--radius); font-size: 13px; text-align: left;}
+      .success { background-color: var(--success-bg); border: 1px solid #cce8d6; }
+      .error { background-color: var(--error-bg); border: 1px solid #fad2cf; }
+      
+      .link-btn { 
+        display: flex; justify-content: center; align-items: center; gap: 6px;
+        margin-top: 10px; padding: 10px; border-radius: 6px; 
+        text-decoration: none; font-weight: 600; font-size: 13px;
+        transition: background-color 0.2s;
+      }
+      .link-edit { background-color: white; border: 1px solid var(--border-color); color: var(--text-color);}
+      .link-edit:hover { background-color: #f1f3f4; }
+      .link-view { background-color: var(--primary); color: white; }
+      .link-view:hover { background-color: var(--primary-hover); }
+
+    </style>
+  </head>
+  <body>
+
+    <div class="header">
+      <h2>⚡ Creador Pro</h2>
+      <p>Generador inteligente de formularios</p>
+    </div>
+
+    <!-- Pestañas de Navegación -->
+    <div class="tabs">
+      <div class="tab active" onclick="openTab('tab-general', this)">📝 General</div>
+      <div class="tab" onclick="openTab('tab-ajustes', this)">⚙️ Ajustes</div>
+      <div class="tab" onclick="openTab('tab-avanzado', this)">🎨 Extra</div>
+    </div>
+
+    <div class="main-content">
+      <form id="formularioConfig" onsubmit="procesarFormulario(event)">
+        
+        <!-- PESTAÑA 1: GENERAL -->
+        <div id="tab-general" class="tab-content active">
+          <div class="card">
+            <div class="form-group">
+              <label class="block-label" for="nombreFormulario">Título del Documento</label>
+              <input type="text" id="nombreFormulario" name="nombreFormulario" placeholder="Ej. Examen de Historia - Tema 4" required>
+            </div>
+
+            <div class="form-group">
+              <label class="block-label" for="mensajeAgradecimiento">Mensaje al Finalizar</label>
+              <textarea id="mensajeAgradecimiento" placeholder="Ej. ¡Enhorabuena! Las notas se publicarán mañana a primera hora."></textarea>
+            </div>
+          </div>
+
+          <div class="card">
+             <div class="toggle-container">
+              <div class="toggle-text">
+                <strong>Datos del Alumno</strong>
+                <span>Pedir Nombre, Apellidos y Grupo obligatoriamente en la primera página.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="pedirDatosAlumno" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- PESTAÑA 2: AJUSTES ESTRUCTURALES -->
+        <div id="tab-ajustes" class="tab-content">
+          <div class="card">
+            <div class="toggle-container" style="border-bottom: 1px solid #eee; padding-bottom: 12px; margin-bottom: 12px;">
+              <div class="toggle-text">
+                <strong>Pregunta por página</strong>
+                <span>Añade saltos de sección. Ideal para evitar agobio visual en exámenes largos.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="preguntaPorPagina">
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="toggle-container" style="border-bottom: 1px solid #eee; padding-bottom: 12px; margin-bottom: 12px;">
+              <div class="toggle-text">
+                <strong>Barajar Opciones</strong>
+                <span>El orden de las respuestas (A, B, C...) será diferente para cada alumno.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="barajarOpciones" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="toggle-container">
+              <div class="toggle-text">
+                <strong>Preguntas Obligatorias</strong>
+                <span>Fuerza a responder todas las cuestiones generadas.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="preguntasObligatorias" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- PESTAÑA 3: EXTRA Y ESTILOS -->
+        <div id="tab-avanzado" class="tab-content">
+          <div class="card">
+            <div class="form-group">
+              <label class="block-label" for="puntosDefault">Puntuación por defecto</label>
+              <input type="number" id="puntosDefault" value="1" min="0" placeholder="Puntos si la celda está vacía">
+              <span style="font-size: 11px; color: #666; margin-top: 4px; display: block;">Se aplicará si dejas la columna 'Puntos' en blanco.</span>
+            </div>
+          </div>
+
+          <div class="card">
+             <div class="form-group">
+              <label class="block-label" for="colorTema">Color Principal del Formulario</label>
+              <div class="color-picker-container">
+                <input type="color" id="colorTema" value="#673AB7">
+                <span style="font-size: 13px; color: #5f6368;">Selecciona un tema visual</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </form>
+
+      <!-- Zonas de Estado -->
+      <div id="loader">
+        <div class="spinner"></div>
+        <h3 style="margin: 16px 0 8px; font-size: 15px; color: var(--primary);">Construyendo...</h3>
+        <p style="font-size: 12px; color: #666; margin: 0; line-height: 1.5;">Leyendo hoja de cálculo, procesando validaciones y aplicando configuraciones.</p>
+      </div>
+
+      <div id="resultado" class="resultado"></div>
+    </div>
+
+    <!-- Footer fijo con el botón de envío -->
+    <div class="footer" id="footer-controls">
+      <button type="button" id="btnGenerar" onclick="document.getElementById('formularioConfig').requestSubmit()">
+        🚀 Generar Formulario
+      </button>
+    </div>
+
+    <script>
+      // Lógica de Pestañas
+      function openTab(tabName, element) {
+        // Ocultar todas las pestañas
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        
+        // Mostrar la seleccionada
+        document.getElementById(tabName).classList.add('active');
+        element.classList.add('active');
+      }
+
+      // Lógica principal de ejecución
+      function procesarFormulario(evento) {
+        evento.preventDefault();
+        
+        // Cambios en la UI durante la carga
+        document.getElementById('footer-controls').style.display = 'none';
+        document.getElementById('formularioConfig').style.display = 'none';
+        document.querySelector('.tabs').style.display = 'none';
+        document.getElementById('loader').style.display = 'block';
+
+        // Recopilación de todos los datos nuevos
+        const configuracion = {
+          nombreFormulario: document.getElementById('nombreFormulario').value,
+          mensajeAgradecimiento: document.getElementById('mensajeAgradecimiento').value,
+          preguntaPorPagina: document.getElementById('preguntaPorPagina').checked,
+          barajarOpciones: document.getElementById('barajarOpciones').checked,
+          preguntasObligatorias: document.getElementById('preguntasObligatorias').checked,
+          pedirDatosAlumno: document.getElementById('pedirDatosAlumno').checked,
+          puntosDefault: document.getElementById('puntosDefault').value,
+          colorTema: document.getElementById('colorTema').value,
+          barraProgreso: true 
+        };
+
+        // Llamada al Backend (codigo.gs)
+        google.script.run
+          .withSuccessHandler(manejarExito)
+          .withFailureHandler(manejarErrorCritico)
+          .generarFormularioDesdeHoja(configuracion);
+      }
+
+      function manejarExito(respuesta) {
+        document.getElementById('loader').style.display = 'none';
+        const divResultado = document.getElementById('resultado');
+        divResultado.style.display = 'block';
+
+        if (respuesta.success) {
+          divResultado.className = 'resultado success';
+          divResultado.innerHTML = `
+            <div style="text-align: center; margin-bottom: 12px; font-size: 24px;">🎉</div>
+            <strong style="display:block; text-align:center; font-size:15px; color:#0d652d; margin-bottom:4px;">¡Generación Exitosa!</strong>
+            <p style="text-align:center; color:#137333; margin-top:0;">Se han procesado e insertado <b>${respuesta.count}</b> preguntas.</p>
+            
+            <a href="${respuesta.editUrl}" target="_blank" class="link-btn link-edit">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              Editar Cuestionario
+            </a>
+            
+            <a href="${respuesta.publishedUrl}" target="_blank" class="link-btn link-view">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              Vista de Alumno
+            </a>
+            
+            <button onclick="reiniciarApp()" style="margin-top: 20px; background: transparent; color: var(--primary); border: 1px solid var(--primary); padding: 8px;">
+              Crear otro cuestionario
+            </button>
+          `;
+        } else {
+          divResultado.className = 'resultado error';
+          divResultado.innerHTML = `
+            <strong style="color: #c5221f;">⚠️ Formato Incorrecto</strong><br>
+            <p style="margin: 8px 0;">${respuesta.error}</p>
+            <button onclick="reiniciarApp()" style="padding: 8px;">Volver y corregir</button>
+          `;
+        }
+      }
+
+      function manejarErrorCritico(error) {
+        document.getElementById('loader').style.display = 'none';
+        const divResultado = document.getElementById('resultado');
+        divResultado.style.display = 'block';
+        divResultado.className = 'resultado error';
+        divResultado.innerHTML = `
+          <strong style="color: #c5221f;">🚨 Fallo de Conexión</strong><br>
+          <p style="margin: 8px 0;">${error.message}</p>
+          <button onclick="reiniciarApp()" style="padding: 8px;">Reintentar</button>`;
+      }
+
+      function reiniciarApp() {
+        document.getElementById('footer-controls').style.display = 'block';
+        document.getElementById('formularioConfig').style.display = 'block';
+        document.querySelector('.tabs').style.display = 'flex';
+        document.getElementById('resultado').style.display = 'none';
+        
+        // Resetear a la primera pestaña
+        document.querySelectorAll('.tab')[0].click();
+      }
+    </script>
+  </body>
+</html>
